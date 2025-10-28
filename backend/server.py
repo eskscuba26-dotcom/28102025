@@ -415,7 +415,7 @@ async def get_shipments():
     return shipments
 
 @api_router.put("/shipment/{ship_id}", response_model=Shipment)
-async def update_shipment(ship_id: str, update: ShipmentUpdate, current_user: dict = Depends(get_admin_user)):
+async def update_shipment(ship_id: str, update: ShipmentUpdate):
     ship = await db.shipments.find_one({"id": ship_id})
     if not ship:
         raise HTTPException(status_code=404, detail="Shipment not found")
