@@ -131,7 +131,7 @@ const CutProductForm = () => {
         setEditingId(null);
         setIsEditDialogOpen(false);
       } else {
-        await axios.post(`${API}/cut-product`, payload);
+        await api.post('/cut-product', payload);
         toast.success(`Kesilmiş ürün kaydı eklendi! ${kullanilanAnaAdet} adet ana malzeme stoktan düştü.`);
       }
       
