@@ -47,7 +47,7 @@ const ShipmentForm = () => {
 
   const fetchShipments = async () => {
     try {
-      const response = await axios.get(`${API}/shipment`);
+      const response = await api.get('/shipment');
       setShipments(response.data);
     } catch (error) {
       console.error(error);
