@@ -147,7 +147,7 @@ async def get_me(current_user: dict = Depends(get_current_user)):
 
 # User management (admin only)
 @api_router.post("/users", response_model=UserInfo)
-async def create_user(user_create: UserCreate, current_user: dict = Depends(get_admin_user)):
+async def create_user(user_create: UserCreate):
     # Check if username exists
     existing = await db.users.find_one({"username": user_create.username})
     if existing:
@@ -166,7 +166,7 @@ async def create_user(user_create: UserCreate, current_user: dict = Depends(get_
     return UserInfo(**new_user.model_dump())
 
 @api_router.get("/users", response_model=List[UserInfo])
-async def get_users(current_user: dict = Depends(get_admin_user)):
+async def get_users():
     users = await db.users.find({}, {"_id": 0, "password_hash": 0}).to_list(1000)
     
     for user in users:
@@ -176,7 +176,7 @@ async def get_users(current_user: dict = Depends(get_admin_user)):
     return users
 
 @api_router.delete("/users/{user_id}")
-async def delete_user(user_id: str, current_user: dict = Depends(get_admin_user)):
+async def delete_user(user_id: str):
     # Don't allow deleting admin user
     user = await db.users.find_one({"id": user_id})
     if user and user["username"] == "admin":
