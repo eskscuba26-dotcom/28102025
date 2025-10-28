@@ -160,7 +160,7 @@ const CutProductForm = () => {
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`${API}/cut-product/${id}`);
+      await api.delete(`/cut-product/${id}`);
       toast.success('Kesilmiş ürün kaydı silindi!');
       fetchCutProducts();
     } catch (error) {
