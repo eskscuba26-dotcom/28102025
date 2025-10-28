@@ -121,6 +121,7 @@ function AppContent({ user, onLogout }) {
           <Route path="/cut-product" element={user.role === 'admin' ? <CutProductForm /> : <Navigate to="/" />} />
           <Route path="/shipment" element={user.role === 'admin' ? <ShipmentForm /> : <Navigate to="/" />} />
           <Route path="/stock" element={<StockView />} />
+          <Route path="/users" element={user.role === 'admin' ? <UserManagement /> : <Navigate to="/" />} />
         </Routes>
       </main>
     </div>
