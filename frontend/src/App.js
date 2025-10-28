@@ -135,11 +135,6 @@ function AppContent({ user, onLogout }) {
           <Route path="/users" element={user.role === 'admin' ? <UserManagement /> : <Navigate to="/" />} />
         </Routes>
       </main>
-          <Route path="/shipment" element={<ShipmentForm userRole={user.role} />} />
-          <Route path="/stock" element={<StockView userRole={user.role} />} />
-          <Route path="/users" element={user.role === 'admin' ? <UserManagement /> : <Navigate to="/" />} />
-        </Routes>
-      </main>
     </div>
   );
 }
