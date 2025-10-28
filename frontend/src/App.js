@@ -34,6 +34,7 @@ function SidebarNav({ user, onLogout }) {
     { path: '/shipment', icon: Truck, label: 'Sevkiyat' },
     { path: '/stock', icon: BarChart3, label: 'Stok Görünümü' },
     { path: '/raw-materials', icon: ShoppingCart, label: 'Hammadde Yönetimi' },
+    { path: '/consumption', icon: Factory, label: 'Günlük Tüketim' },
     { path: '/currency', icon: DollarSign, label: 'Kur Ayarları' }
   ];
 
