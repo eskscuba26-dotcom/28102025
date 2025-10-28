@@ -431,7 +431,7 @@ async def update_shipment(ship_id: str, update: ShipmentUpdate):
     return Shipment(**updated_ship)
 
 @api_router.delete("/shipment/{ship_id}")
-async def delete_shipment(ship_id: str, current_user: dict = Depends(get_admin_user)):
+async def delete_shipment(ship_id: str):
     result = await db.shipments.delete_one({"id": ship_id})
     if result.deleted_count == 0:
         raise HTTPException(status_code=404, detail="Shipment not found")
