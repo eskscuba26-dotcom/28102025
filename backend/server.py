@@ -484,7 +484,7 @@ async def get_cut_products():
     return cut_products
 
 @api_router.delete("/cut-product/{cut_id}")
-async def delete_cut_product(cut_id: str, current_user: dict = Depends(get_admin_user)):
+async def delete_cut_product(cut_id: str):
     result = await db.cut_products.delete_one({"id": cut_id})
     if result.deleted_count == 0:
         raise HTTPException(status_code=404, detail="Cut product not found")
