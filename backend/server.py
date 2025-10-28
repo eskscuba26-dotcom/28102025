@@ -844,6 +844,68 @@ async def delete_raw_material(material_id: str, admin_user: dict = Depends(get_a
     return {"message": "Raw material deleted"}
 
 
+# Daily Consumption endpoints
+@api_router.post("/daily-consumption")
+async def create_daily_consumption(input: DailyConsumptionCreate, admin_user: dict = Depends(get_admin_user)):
+    # Calculate estol and talk automatically
+    estol_kg = input.petkim_kg * 0.03  # 3%
+    talk_kg = input.petkim_kg * 0.015  # 1.5%
+    
+    consumption_dict = input.model_dump()
+    consumption_obj = DailyConsumption(
+        **consumption_dict,
+        estol_kg=estol_kg,
+        talk_kg=talk_kg
+    )
+    
+    doc = consumption_obj.model_dump()
+    doc['timestamp'] = doc['timestamp'].isoformat()
+    
+    await db.daily_consumptions.insert_one(doc)
+    return consumption_obj
+
+@api_router.get("/daily-consumption")
+async def get_daily_consumptions(current_user: dict = Depends(get_viewer_or_admin)):
+    consumptions = await db.daily_consumptions.find({}, {"_id": 0}).to_list(1000)
+    
+    for cons in consumptions:
+        if isinstance(cons['timestamp'], str):
+            cons['timestamp'] = datetime.fromisoformat(cons['timestamp'])
+    
+    return consumptions
+
+@api_router.put("/daily-consumption/{consumption_id}")
+async def update_daily_consumption(consumption_id: str, update: DailyConsumptionUpdate, admin_user: dict = Depends(get_admin_user)):
+    consumption = await db.daily_consumptions.find_one({"id": consumption_id})
+    if not consumption:
+        raise HTTPException(status_code=404, detail="Daily consumption not found")
+    
+    # Update fields
+    update_data = {k: v for k, v in update.model_dump().items() if v is not None}
+    
+    if update_data:
+        # Recalculate estol and talk if petkim changed
+        petkim_kg = update_data.get('petkim_kg', consumption['petkim_kg'])
+        
+        update_data['estol_kg'] = petkim_kg * 0.03
+        update_data['talk_kg'] = petkim_kg * 0.015
+        
+        await db.daily_consumptions.update_one({"id": consumption_id}, {"$set": update_data})
+    
+    updated_consumption = await db.daily_consumptions.find_one({"id": consumption_id}, {"_id": 0})
+    if isinstance(updated_consumption['timestamp'], str):
+        updated_consumption['timestamp'] = datetime.fromisoformat(updated_consumption['timestamp'])
+    
+    return DailyConsumption(**updated_consumption)
+
+@api_router.delete("/daily-consumption/{consumption_id}")
+async def delete_daily_consumption(consumption_id: str, admin_user: dict = Depends(get_admin_user)):
+    result = await db.daily_consumptions.delete_one({"id": consumption_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Daily consumption not found")
+    return {"message": "Daily consumption deleted"}
+
+
 # Include the router
 app.include_router(api_router)
 
