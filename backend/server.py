@@ -111,13 +111,13 @@ async def init_admin():
     if not admin_exists:
         admin_user = User(
             username="admin",
-            password_hash=hash_password("SAR2025!"),  # Default şifre
+            password_hash=hash_password("SAR_2025_GuvenlI_SifrE!@#"),
             role="admin"
         )
         doc = admin_user.model_dump()
         doc['created_at'] = doc['created_at'].isoformat()
         await db.users.insert_one(doc)
-        logging.info("Admin user created: admin / SAR2025!")
+        logging.info("Admin user created with secure password")
 
 @app.on_event("startup")
 async def startup_event():
