@@ -389,7 +389,7 @@ async def delete_production(prod_id: str):
 
 # Shipment endpoints
 @api_router.post("/shipment", response_model=Shipment)
-async def create_shipment(input: ShipmentCreate, current_user: dict = Depends(get_admin_user)):
+async def create_shipment(input: ShipmentCreate):
     ship_dict = input.model_dump()
     ship_obj = Shipment(**ship_dict)
     
