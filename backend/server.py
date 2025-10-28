@@ -364,7 +364,7 @@ async def get_productions():
     return productions
 
 @api_router.put("/production/{prod_id}", response_model=Production)
-async def update_production(prod_id: str, update: ProductionUpdate, current_user: dict = Depends(get_admin_user)):
+async def update_production(prod_id: str, update: ProductionUpdate):
     prod = await db.productions.find_one({"id": prod_id})
     if not prod:
         raise HTTPException(status_code=404, detail="Production not found")
