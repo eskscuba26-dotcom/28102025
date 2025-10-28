@@ -46,16 +46,14 @@ const ConsumptionForm = ({ userRole }) => {
     setFormData(prev => {
       const updated = { ...prev, [name]: value };
       
-      // Recalculate estol and talk when petkim changes
-      if (name === 'petkim_kg') {
-        const petkimValue = parseFloat(value);
-        if (!isNaN(petkimValue)) {
-          setEstolKg(petkimValue * 0.03);  // 3%
-          setTalkKg(petkimValue * 0.015);   // 1.5%
-        } else {
-          setEstolKg(0);
-          setTalkKg(0);
-        }
+      // Recalculate estol and talk when petkim or fire changes
+      if (name === 'petkim_kg' || name === 'fire_kg') {
+        const petkimValue = parseFloat(name === 'petkim_kg' ? value : updated.petkim_kg) || 0;
+        const fireValue = parseFloat(name === 'fire_kg' ? value : updated.fire_kg) || 0;
+        
+        const toplamPetkim = petkimValue + fireValue;
+        setEstolKg(toplamPetkim * 0.03);  // 3%
+        setTalkKg(toplamPetkim * 0.015);   // 1.5%
       }
       
       return updated;
