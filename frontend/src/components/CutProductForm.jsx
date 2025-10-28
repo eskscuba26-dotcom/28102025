@@ -281,6 +281,33 @@ const CutProductForm = () => {
                   </Select>
                 </div>
               </div>
+
+              {/* Hesaplama Sonucu - Büyük Kutu */}
+              {kullanilanAnaAdet > 0 && (
+                <div className="mt-4 bg-gradient-to-r from-emerald-950/80 to-emerald-900/50 border-2 border-emerald-500 rounded-lg p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-emerald-300 text-sm font-medium">
+                        Kesilecek Ürün İçin Gerekli Ana Malzeme:
+                      </p>
+                      <p className="text-emerald-300 text-xs mt-1">
+                        ({formData.kesim_adet} adet x {formData.kesim_en}cm x {formData.kesim_boy}cm = {((parseFloat(formData.kesim_en || 0) / 100) * (parseFloat(formData.kesim_boy || 0) / 100) * parseInt(formData.kesim_adet || 0)).toFixed(2)} m²)
+                      </p>
+                    </div>
+                    <div className="bg-emerald-600 px-6 py-3 rounded-lg">
+                      <p className="text-white text-3xl font-bold text-center">
+                        {kullanilanAnaAdet}
+                      </p>
+                      <p className="text-emerald-100 text-xs text-center font-semibold">
+                        ADET
+                      </p>
+                    </div>
+                  </div>
+                  <p className="text-emerald-400 text-xs mt-2 font-semibold">
+                    ⚠️ Bu miktar stoktan otomatik olarak düşecektir
+                  </p>
+                </div>
+              )}
             </div>
 
             {/* Kesilecek/Ebatlanacak Model Bölümü */}
