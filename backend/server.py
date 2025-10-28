@@ -627,17 +627,19 @@ async def get_stock(current_user: dict = Depends(get_viewer_or_admin)):
     # Add cut products as Kesilmiş stock
     for cut in cut_products:
         if 'kesim_kalinlik' in cut and 'kesim_en' in cut and 'kesim_boy' in cut:
-            boy = cut['kesim_boy']
+            # kesim_boy is in CM, convert to meters for matching with shipments
+            boy_cm = cut['kesim_boy']
+            boy_meters = boy_cm / 100  # Convert CM to meters
             renk_kategori = cut.get('kesim_renk_kategori', 'Renksiz')
             renk = cut.get('kesim_renk', 'Doğal')
-            key = f"Kesilmiş_{cut['kesim_kalinlik']}_{cut['kesim_en']}_{boy}_{renk_kategori}_{renk}"
+            key = f"Kesilmiş_{cut['kesim_kalinlik']}_{cut['kesim_en']}_{boy_meters}_{renk_kategori}_{renk}"
             
             if key not in stock_dict:
                 stock_dict[key] = {
                     'urun_tipi': 'Kesilmiş',
                     'kalinlik': cut['kesim_kalinlik'],
                     'en': cut['kesim_en'],
-                    'boy': boy,
+                    'boy': boy_meters,  # Store in meters
                     'renk_kategori': renk_kategori,
                     'renk': renk,
                     'toplam_metre': 0,
