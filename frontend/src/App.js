@@ -117,10 +117,10 @@ function AppContent({ user, onLogout }) {
       <main className="lg:ml-64 p-6">
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/production" element={user.role === 'admin' ? <ProductionForm /> : <Navigate to="/" />} />
-          <Route path="/cut-product" element={user.role === 'admin' ? <CutProductForm /> : <Navigate to="/" />} />
-          <Route path="/shipment" element={user.role === 'admin' ? <ShipmentForm /> : <Navigate to="/" />} />
-          <Route path="/stock" element={<StockView />} />
+          <Route path="/production" element={<ProductionForm userRole={user.role} />} />
+          <Route path="/cut-product" element={<CutProductForm userRole={user.role} />} />
+          <Route path="/shipment" element={<ShipmentForm userRole={user.role} />} />
+          <Route path="/stock" element={<StockView userRole={user.role} />} />
           <Route path="/users" element={user.role === 'admin' ? <UserManagement /> : <Navigate to="/" />} />
         </Routes>
       </main>
