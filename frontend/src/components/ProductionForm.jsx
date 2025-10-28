@@ -132,7 +132,7 @@ const ProductionForm = () => {
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`${API}/production/${id}`);
+      await api.delete(`/production/${id}`);
       toast.success('Üretim kaydı silindi!');
       fetchProductions();
     } catch (error) {
