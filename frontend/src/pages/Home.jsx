@@ -8,7 +8,18 @@ const Home = () => {
     normalStock: 0,
     cutStock: 0,
     totalProduction: 0,
-    totalShipment: 0
+    totalShipment: 0,
+    rawMaterials: {
+      gaz: 0,
+      petkim: 0,
+      estol: 0,
+      talk: 0,
+      masura100: 0,
+      masura120: 0,
+      masura150: 0,
+      masura200: 0,
+      sari: 0
+    }
   });
 
   useEffect(() => {
@@ -17,10 +28,11 @@ const Home = () => {
 
   const fetchStats = async () => {
     try {
-      const [stockRes, prodRes, shipRes] = await Promise.all([
+      const [stockRes, prodRes, shipRes, rawMatRes] = await Promise.all([
         api.get('/stock'),
         api.get('/production'),
-        api.get('/shipment')
+        api.get('/shipment'),
+        api.get('/raw-materials')
       ]);
 
       const stocks = stockRes.data;
@@ -32,11 +44,50 @@ const Home = () => {
         .filter(s => s.urun_tipi === 'Kesilmiş')
         .reduce((sum, s) => sum + s.toplam_adet, 0);
 
+      // Calculate raw material stocks by material name
+      const rawMaterials = {
+        gaz: 0,
+        petkim: 0,
+        estol: 0,
+        talk: 0,
+        masura100: 0,
+        masura120: 0,
+        masura150: 0,
+        masura200: 0,
+        sari: 0
+      };
+
+      rawMatRes.data.forEach(mat => {
+        const name = mat.malzeme_adi.toLowerCase();
+        const miktar = mat.miktar || 0;
+        
+        if (name.includes('gaz')) {
+          rawMaterials.gaz += miktar;
+        } else if (name.includes('petkim') || name.includes('pet')) {
+          rawMaterials.petkim += miktar;
+        } else if (name.includes('estol')) {
+          rawMaterials.estol += miktar;
+        } else if (name.includes('talk')) {
+          rawMaterials.talk += miktar;
+        } else if (name.includes('masura') && name.includes('100')) {
+          rawMaterials.masura100 += miktar;
+        } else if (name.includes('masura') && name.includes('120')) {
+          rawMaterials.masura120 += miktar;
+        } else if (name.includes('masura') && name.includes('150')) {
+          rawMaterials.masura150 += miktar;
+        } else if (name.includes('masura') && name.includes('200')) {
+          rawMaterials.masura200 += miktar;
+        } else if (name.includes('sarı') || name.includes('sari')) {
+          rawMaterials.sari += miktar;
+        }
+      });
+
       setStats({
         normalStock,
         cutStock,
         totalProduction: prodRes.data.filter(p => p.urun_tipi === 'Normal').length,
-        totalShipment: shipRes.data.length
+        totalShipment: shipRes.data.length,
+        rawMaterials
       });
     } catch (error) {
       console.error('Stats fetch error:', error);
