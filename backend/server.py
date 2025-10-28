@@ -509,10 +509,10 @@ async def get_stock():
                     'renk': renk,
                     'toplam_metre': 0,
                     'toplam_metrekare': 0,
-                    'toplam_adet': 0
+                    'toplam_adet': 0,
+                    'birim_metre': prod.get('metre', 0),  # Her rulodan metre
+                    'birim_metrekare': prod.get('metrekare', 0)  # Her rulodan m2
                 }
-            stock_dict[key]['toplam_metre'] += prod.get('metre', 0)
-            stock_dict[key]['toplam_metrekare'] += prod.get('metrekare', 0)
             stock_dict[key]['toplam_adet'] += prod['adet']
     
     # Add cut products as Kesilmiş stock
@@ -536,12 +536,9 @@ async def get_stock():
                     'toplam_adet': 0
                 }
             
-            # Calculate metrekare for cut product
-            m2 = (cut['kesim_en'] / 100) * (cut['kesim_boy'] / 100) * cut['kesim_adet']
-            stock_dict[key]['toplam_metrekare'] += m2
             stock_dict[key]['toplam_adet'] += cut['kesim_adet']
     
-    # Subtract shipments
+    # Subtract shipments from stock counts
     for ship in shipments:
         urun_tipi = ship.get('urun_tipi', 'Normal')
         renk_kategori = ship.get('renk_kategori', 'Renksiz')
@@ -554,10 +551,7 @@ async def get_stock():
             key = f"Normal_{ship['kalinlik']}_{ship['en']}_{renk_kategori}_{renk}"
         
         if key in stock_dict:
-            stock_dict[key]['toplam_metrekare'] -= ship.get('metrekare', 0)
             stock_dict[key]['toplam_adet'] -= ship['adet']
-            if urun_tipi == 'Normal':
-                stock_dict[key]['toplam_metre'] -= ship.get('metre', 0)
     
     # Subtract cut products from ana malzeme (normal stock)
     for cut in cut_products:
@@ -568,9 +562,19 @@ async def get_stock():
             
             if key in stock_dict:
                 stock_dict[key]['toplam_adet'] -= cut.get('kullanilan_ana_adet', 0)
-                used_metrekare = cut.get('ana_metrekare', 0) * cut.get('kullanilan_ana_adet', 0)
-                stock_dict[key]['toplam_metrekare'] -= used_metrekare
-                stock_dict[key]['toplam_metre'] -= (cut.get('ana_metre', 0) * cut.get('kullanilan_ana_adet', 0))
+    
+    # Final calculation: compute totals based on remaining adet
+    for key, stock in stock_dict.items():
+        if stock['urun_tipi'] == 'Normal' and 'birim_metre' in stock:
+            # Toplam = kalan adet * birim değer
+            stock['toplam_metre'] = stock['toplam_adet'] * stock['birim_metre']
+            stock['toplam_metrekare'] = stock['toplam_adet'] * stock['birim_metrekare']
+            # Birim değerleri çıkar (Stock model'de yok)
+            del stock['birim_metre']
+            del stock['birim_metrekare']
+        elif stock['urun_tipi'] == 'Kesilmiş':
+            # Kesilmiş ürün için metrekare hesapla
+            stock['toplam_metrekare'] = (stock['en'] / 100) * (stock['boy'] / 100) * stock['toplam_adet']
     
     return list(stock_dict.values())
 
