@@ -94,13 +94,16 @@ const Home = () => {
       // Subtract masura used in production (1 adet per production)
       prodRes.data.forEach(prod => {
         const masuraTipi = prod.masura_tipi;
-        if (masuraTipi === '100') {
+        if (!masuraTipi) return;
+        
+        // Handle both "100" and "Masura 100" formats
+        if (masuraTipi.includes('100')) {
           rawMaterials.masura100 -= 1;
-        } else if (masuraTipi === '120') {
+        } else if (masuraTipi.includes('120')) {
           rawMaterials.masura120 -= 1;
-        } else if (masuraTipi === '150') {
+        } else if (masuraTipi.includes('150')) {
           rawMaterials.masura150 -= 1;
-        } else if (masuraTipi === '200') {
+        } else if (masuraTipi.includes('200')) {
           rawMaterials.masura200 -= 1;
         }
       });
