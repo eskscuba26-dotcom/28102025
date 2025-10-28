@@ -18,9 +18,9 @@ const Home = () => {
   const fetchStats = async () => {
     try {
       const [stockRes, prodRes, shipRes] = await Promise.all([
-        axios.get(`${API}/stock`),
-        axios.get(`${API}/production`),
-        axios.get(`${API}/shipment`)
+        api.get('/stock'),
+        api.get('/production'),
+        api.get('/shipment')
       ]);
 
       const stocks = stockRes.data;
