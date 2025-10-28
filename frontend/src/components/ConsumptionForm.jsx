@@ -285,10 +285,11 @@ const ConsumptionForm = ({ userRole }) => {
                   <TableRow className="border-slate-700">
                     <TableHead className="text-slate-200">Tarih</TableHead>
                     <TableHead className="text-slate-200">Makine</TableHead>
-                    <TableHead className="text-slate-200">Petkim (kg)</TableHead>
-                    <TableHead className="text-slate-200">Estol (kg)</TableHead>
-                    <TableHead className="text-slate-200">Talk (kg)</TableHead>
+                    <TableHead className="text-slate-200">Petkim Giriş (kg)</TableHead>
                     <TableHead className="text-slate-200">Fire (kg)</TableHead>
+                    <TableHead className="text-slate-200">Toplam Petkim (kg)</TableHead>
+                    <TableHead className="text-slate-200">Toplam Estol (kg)</TableHead>
+                    <TableHead className="text-slate-200">Toplam Talk (kg)</TableHead>
                     {isAdmin && <TableHead className="text-slate-200 text-right">İşlemler</TableHead>}
                   </TableRow>
                 </TableHeader>
