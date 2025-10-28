@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Link, useLocation, Navigate, useNavigate } from 'react-router-dom';
-import { Home as HomeIcon, Package, Scissors, Truck, BarChart3, Menu, X, Users, LogOut, DollarSign, ShoppingCart } from 'lucide-react';
+import { Home as HomeIcon, Package, Scissors, Truck, BarChart3, Menu, X, Users, LogOut, DollarSign, ShoppingCart, Factory } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Login from '@/pages/Login';
 import Home from '@/pages/Home';
@@ -11,6 +11,7 @@ import CutProductForm from '@/components/CutProductForm';
 import ShipmentForm from '@/components/ShipmentForm';
 import StockView from '@/components/StockView';
 import RawMaterialForm from '@/components/RawMaterialForm';
+import ConsumptionForm from '@/components/ConsumptionForm';
 import logo from '@/assets/logo.png';
 import '@/App.css';
 import { Toaster } from '@/components/ui/sonner';
