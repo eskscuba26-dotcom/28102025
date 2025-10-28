@@ -1,4 +1,4 @@
-from fastapi import FastAPI, APIRouter
+from fastapi import FastAPI, APIRouter, HTTPException
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
@@ -6,7 +6,7 @@ import os
 import logging
 from pathlib import Path
 from pydantic import BaseModel, Field, ConfigDict
-from typing import List
+from typing import List, Optional
 import uuid
 from datetime import datetime, timezone
 
@@ -27,44 +27,151 @@ api_router = APIRouter(prefix="/api")
 
 
 # Define Models
-class StatusCheck(BaseModel):
-    model_config = ConfigDict(extra="ignore")  # Ignore MongoDB's _id field
+class Production(BaseModel):
+    model_config = ConfigDict(extra="ignore")
     
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
-    client_name: str
+    tarih: str
+    makine: str
+    kalinlik: float  # mm
+    en: float  # cm
+    metre: float
+    metrekare: float
+    adet: int
+    masura_tipi: str
     timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
-class StatusCheckCreate(BaseModel):
-    client_name: str
+class ProductionCreate(BaseModel):
+    tarih: str
+    makine: str
+    kalinlik: float
+    en: float
+    metre: float
+    metrekare: float
+    adet: int
+    masura_tipi: str
 
-# Add your routes to the router instead of directly to app
-@api_router.get("/")
-async def root():
-    return {"message": "Hello World"}
-
-@api_router.post("/status", response_model=StatusCheck)
-async def create_status_check(input: StatusCheckCreate):
-    status_dict = input.model_dump()
-    status_obj = StatusCheck(**status_dict)
+class Shipment(BaseModel):
+    model_config = ConfigDict(extra="ignore")
     
-    # Convert to dict and serialize datetime to ISO string for MongoDB
-    doc = status_obj.model_dump()
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    tarih: str
+    alici_firma: str
+    kalinlik: float  # mm
+    en: float  # cm
+    metre: float
+    metrekare: float
+    adet: int
+    irsaliye_no: str
+    arac_plaka: str
+    sofor: str
+    cikis_saati: str
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+class ShipmentCreate(BaseModel):
+    tarih: str
+    alici_firma: str
+    kalinlik: float
+    en: float
+    metre: float
+    metrekare: float
+    adet: int
+    irsaliye_no: str
+    arac_plaka: str
+    sofor: str
+    cikis_saati: str
+
+class Stock(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    
+    model: str
+    kalinlik: float
+    en: float
+    toplam_metre: float
+    toplam_metrekare: float
+    toplam_adet: int
+
+# Production endpoints
+@api_router.post("/production", response_model=Production)
+async def create_production(input: ProductionCreate):
+    prod_dict = input.model_dump()
+    prod_obj = Production(**prod_dict)
+    
+    doc = prod_obj.model_dump()
     doc['timestamp'] = doc['timestamp'].isoformat()
     
-    _ = await db.status_checks.insert_one(doc)
-    return status_obj
+    await db.productions.insert_one(doc)
+    return prod_obj
 
-@api_router.get("/status", response_model=List[StatusCheck])
-async def get_status_checks():
-    # Exclude MongoDB's _id field from the query results
-    status_checks = await db.status_checks.find({}, {"_id": 0}).to_list(1000)
+@api_router.get("/production", response_model=List[Production])
+async def get_productions():
+    productions = await db.productions.find({}, {"_id": 0}).to_list(1000)
     
-    # Convert ISO string timestamps back to datetime objects
-    for check in status_checks:
-        if isinstance(check['timestamp'], str):
-            check['timestamp'] = datetime.fromisoformat(check['timestamp'])
+    for prod in productions:
+        if isinstance(prod['timestamp'], str):
+            prod['timestamp'] = datetime.fromisoformat(prod['timestamp'])
     
-    return status_checks
+    return productions
+
+# Shipment endpoints
+@api_router.post("/shipment", response_model=Shipment)
+async def create_shipment(input: ShipmentCreate):
+    ship_dict = input.model_dump()
+    ship_obj = Shipment(**ship_dict)
+    
+    doc = ship_obj.model_dump()
+    doc['timestamp'] = doc['timestamp'].isoformat()
+    
+    await db.shipments.insert_one(doc)
+    return ship_obj
+
+@api_router.get("/shipment", response_model=List[Shipment])
+async def get_shipments():
+    shipments = await db.shipments.find({}, {"_id": 0}).to_list(1000)
+    
+    for ship in shipments:
+        if isinstance(ship['timestamp'], str):
+            ship['timestamp'] = datetime.fromisoformat(ship['timestamp'])
+    
+    return shipments
+
+# Stock endpoint
+@api_router.get("/stock", response_model=List[Stock])
+async def get_stock():
+    # Get all productions
+    productions = await db.productions.find({}, {"_id": 0}).to_list(10000)
+    
+    # Get all shipments
+    shipments = await db.shipments.find({}, {"_id": 0}).to_list(10000)
+    
+    # Calculate stock by grouping
+    stock_dict = {}
+    
+    # Add productions
+    for prod in productions:
+        key = f"{prod['kalinlik']}_{prod['en']}"
+        if key not in stock_dict:
+            stock_dict[key] = {
+                'model': f"Kalınlık {prod['kalinlik']}mm x En {prod['en']}cm",
+                'kalinlik': prod['kalinlik'],
+                'en': prod['en'],
+                'toplam_metre': 0,
+                'toplam_metrekare': 0,
+                'toplam_adet': 0
+            }
+        stock_dict[key]['toplam_metre'] += prod['metre']
+        stock_dict[key]['toplam_metrekare'] += prod['metrekare']
+        stock_dict[key]['toplam_adet'] += prod['adet']
+    
+    # Subtract shipments
+    for ship in shipments:
+        key = f"{ship['kalinlik']}_{ship['en']}"
+        if key in stock_dict:
+            stock_dict[key]['toplam_metre'] -= ship['metre']
+            stock_dict[key]['toplam_metrekare'] -= ship['metrekare']
+            stock_dict[key]['toplam_adet'] -= ship['adet']
+    
+    return list(stock_dict.values())
 
 # Include the router in the main app
 app.include_router(api_router)
