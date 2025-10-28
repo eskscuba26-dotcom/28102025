@@ -80,16 +80,11 @@ const ShipmentForm = () => {
     e.preventDefault();
     
     try {
-      // For Kesilmiş products, convert boy from cm to meters
-      const metreValue = formData.urun_tipi === 'Kesilmiş' 
-        ? parseFloat(formData.metre) / 100  // Convert cm to meters
-        : parseFloat(formData.metre);
-      
       const payload = {
         ...formData,
         kalinlik: parseFloat(formData.kalinlik),
         en: parseFloat(formData.en),
-        metre: metreValue,
+        metre: parseFloat(formData.metre),  // Keep as-is (CM for Kesilmiş, M for Normal)
         metrekare: parseFloat(metrekare),
         adet: parseInt(formData.adet)
       };
