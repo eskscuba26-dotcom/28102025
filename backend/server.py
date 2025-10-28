@@ -849,15 +849,18 @@ async def delete_raw_material(material_id: str, admin_user: dict = Depends(get_a
 # Daily Consumption endpoints
 @api_router.post("/daily-consumption")
 async def create_daily_consumption(input: DailyConsumptionCreate, admin_user: dict = Depends(get_admin_user)):
-    # Calculate estol and talk automatically
-    estol_kg = input.petkim_kg * 0.03  # 3%
-    talk_kg = input.petkim_kg * 0.015  # 1.5%
+    # Calculate total consumption including fire
+    # Fire also contains petkim, estol, and talk
+    toplam_petkim = input.petkim_kg + input.fire_kg
+    toplam_estol = toplam_petkim * 0.03  # 3%
+    toplam_talk = toplam_petkim * 0.015  # 1.5%
     
     consumption_dict = input.model_dump()
     consumption_obj = DailyConsumption(
         **consumption_dict,
-        estol_kg=estol_kg,
-        talk_kg=talk_kg
+        toplam_petkim_tuketim=toplam_petkim,
+        toplam_estol_tuketim=toplam_estol,
+        toplam_talk_tuketim=toplam_talk
     )
     
     doc = consumption_obj.model_dump()
