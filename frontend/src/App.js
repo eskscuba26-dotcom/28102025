@@ -110,6 +110,11 @@ function SidebarNav({ user, onLogout }) {
 }
 
 function AppContent({ user, onLogout }) {
+  // If user is null, don't render anything (ProtectedRoute will handle redirect)
+  if (!user) {
+    return null;
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
       <SidebarNav user={user} onLogout={onLogout} />
