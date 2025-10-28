@@ -351,8 +351,9 @@ const ProductionForm = ({ userRole }) => {
                     <TableHead className="text-slate-200">Metre</TableHead>
                     <TableHead className="text-slate-200">m²</TableHead>
                     <TableHead className="text-slate-200">Adet</TableHead>
+                    <TableHead className="text-slate-200">Masura</TableHead>
                     <TableHead className="text-slate-200">Renk</TableHead>
-                    <TableHead className="text-slate-200 text-right">İşlemler</TableHead>
+                    {isAdmin && <TableHead className="text-slate-200 text-right">İşlemler</TableHead>}
                   </TableRow>
                 </TableHeader>
                 <TableBody>
