@@ -1,14 +1,16 @@
 import { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Link, useLocation, Navigate, useNavigate } from 'react-router-dom';
-import { Home as HomeIcon, Package, Scissors, Truck, BarChart3, Menu, X, Users, LogOut } from 'lucide-react';
+import { Home as HomeIcon, Package, Scissors, Truck, BarChart3, Menu, X, Users, LogOut, DollarSign, ShoppingCart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Login from '@/pages/Login';
 import Home from '@/pages/Home';
 import UserManagement from '@/pages/UserManagement';
+import CurrencySettings from '@/pages/CurrencySettings';
 import ProductionForm from '@/components/ProductionForm';
 import CutProductForm from '@/components/CutProductForm';
 import ShipmentForm from '@/components/ShipmentForm';
 import StockView from '@/components/StockView';
+import RawMaterialForm from '@/components/RawMaterialForm';
 import logo from '@/assets/logo.png';
 import '@/App.css';
 import { Toaster } from '@/components/ui/sonner';
@@ -29,7 +31,9 @@ function SidebarNav({ user, onLogout }) {
     { path: '/production', icon: Package, label: 'Üretim Girişi' },
     { path: '/cut-product', icon: Scissors, label: 'Kesilmiş Ürün' },
     { path: '/shipment', icon: Truck, label: 'Sevkiyat' },
-    { path: '/stock', icon: BarChart3, label: 'Stok Görünümü' }
+    { path: '/stock', icon: BarChart3, label: 'Stok Görünümü' },
+    { path: '/raw-materials', icon: ShoppingCart, label: 'Hammadde Yönetimi' },
+    { path: '/currency', icon: DollarSign, label: 'Kur Ayarları' }
   ];
 
   if (user?.role === 'admin') {
