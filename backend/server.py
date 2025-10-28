@@ -490,30 +490,14 @@ async def get_stock():
     
     stock_dict = {}
     
-    # Add productions
+    # Add productions (only normal)
     for prod in productions:
         urun_tipi = prod.get('urun_tipi', 'Normal')
         renk_kategori = prod.get('renk_kategori', 'Renksiz')
         renk = prod.get('renk', 'Doğal')
         
-        if urun_tipi == 'Kesilmiş':
-            boy = prod.get('metre', 0) * 100
-            key = f"Kesilmiş_{prod['kalinlik']}_{prod['en']}_{boy}_{renk_kategori}_{renk}"
-            if key not in stock_dict:
-                stock_dict[key] = {
-                    'urun_tipi': 'Kesilmiş',
-                    'kalinlik': prod['kalinlik'],
-                    'en': prod['en'],
-                    'boy': boy,
-                    'renk_kategori': renk_kategori,
-                    'renk': renk,
-                    'toplam_metre': 0,
-                    'toplam_metrekare': 0,
-                    'toplam_adet': 0
-                }
-            stock_dict[key]['toplam_metrekare'] += prod.get('metrekare', 0)
-            stock_dict[key]['toplam_adet'] += prod['adet']
-        else:
+        # Only add Normal productions
+        if urun_tipi == 'Normal':
             key = f"Normal_{prod['kalinlik']}_{prod['en']}_{renk_kategori}_{renk}"
             if key not in stock_dict:
                 stock_dict[key] = {
@@ -530,6 +514,32 @@ async def get_stock():
             stock_dict[key]['toplam_metre'] += prod.get('metre', 0)
             stock_dict[key]['toplam_metrekare'] += prod.get('metrekare', 0)
             stock_dict[key]['toplam_adet'] += prod['adet']
+    
+    # Add cut products as Kesilmiş stock
+    for cut in cut_products:
+        if 'kesim_kalinlik' in cut and 'kesim_en' in cut and 'kesim_boy' in cut:
+            boy = cut['kesim_boy']
+            renk_kategori = cut.get('kesim_renk_kategori', 'Renksiz')
+            renk = cut.get('kesim_renk', 'Doğal')
+            key = f"Kesilmiş_{cut['kesim_kalinlik']}_{cut['kesim_en']}_{boy}_{renk_kategori}_{renk}"
+            
+            if key not in stock_dict:
+                stock_dict[key] = {
+                    'urun_tipi': 'Kesilmiş',
+                    'kalinlik': cut['kesim_kalinlik'],
+                    'en': cut['kesim_en'],
+                    'boy': boy,
+                    'renk_kategori': renk_kategori,
+                    'renk': renk,
+                    'toplam_metre': 0,
+                    'toplam_metrekare': 0,
+                    'toplam_adet': 0
+                }
+            
+            # Calculate metrekare for cut product
+            m2 = (cut['kesim_en'] / 100) * (cut['kesim_boy'] / 100) * cut['kesim_adet']
+            stock_dict[key]['toplam_metrekare'] += m2
+            stock_dict[key]['toplam_adet'] += cut['kesim_adet']
     
     # Subtract shipments
     for ship in shipments:
@@ -549,7 +559,7 @@ async def get_stock():
             if urun_tipi == 'Normal':
                 stock_dict[key]['toplam_metre'] -= ship.get('metre', 0)
     
-    # Subtract cut products
+    # Subtract cut products from ana malzeme (normal stock)
     for cut in cut_products:
         if 'ana_kalinlik' in cut and 'ana_en' in cut:
             ana_renk_kategori = cut.get('ana_renk_kategori', 'Renksiz')
