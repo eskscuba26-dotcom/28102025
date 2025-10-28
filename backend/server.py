@@ -67,6 +67,10 @@ class UserInfo(BaseModel):
     role: str
     created_at: datetime
 
+class PasswordChange(BaseModel):
+    current_password: str
+    new_password: str
+
 
 # Password hashing
 def hash_password(password: str) -> str:
