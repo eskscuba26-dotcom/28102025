@@ -380,7 +380,7 @@ async def update_production(prod_id: str, update: ProductionUpdate):
     return Production(**updated_prod)
 
 @api_router.delete("/production/{prod_id}")
-async def delete_production(prod_id: str, current_user: dict = Depends(get_admin_user)):
+async def delete_production(prod_id: str):
     result = await db.productions.delete_one({"id": prod_id})
     if result.deleted_count == 0:
         raise HTTPException(status_code=404, detail="Production not found")
