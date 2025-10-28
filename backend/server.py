@@ -566,15 +566,15 @@ async def get_stock():
     # Final calculation: compute totals based on remaining adet
     for key, stock in stock_dict.items():
         if stock['urun_tipi'] == 'Normal' and 'birim_metre' in stock:
-            # Toplam = kalan adet * birim değer
-            stock['toplam_metre'] = stock['toplam_adet'] * stock['birim_metre']
-            stock['toplam_metrekare'] = stock['toplam_adet'] * stock['birim_metrekare']
-            # Birim değerleri çıkar (Stock model'de yok)
+            # BİRİM değerleri kullan (toplam hesaplama!)
+            stock['toplam_metre'] = stock['birim_metre']
+            stock['toplam_metrekare'] = stock['birim_metrekare']
+            # Birim değerleri çıkar
             del stock['birim_metre']
             del stock['birim_metrekare']
         elif stock['urun_tipi'] == 'Kesilmiş':
-            # Kesilmiş ürün için metrekare hesapla
-            stock['toplam_metrekare'] = (stock['en'] / 100) * (stock['boy'] / 100) * stock['toplam_adet']
+            # Kesilmiş ürün için BİRİM metrekare hesapla
+            stock['toplam_metrekare'] = (stock['en'] / 100) * (stock['boy'] / 100)
     
     return list(stock_dict.values())
 
