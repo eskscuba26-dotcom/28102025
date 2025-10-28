@@ -46,10 +46,7 @@ const UserManagement = () => {
     e.preventDefault();
     
     try {
-      const token = localStorage.getItem('token');
-      await axios.post(`${API}/users`, newUser, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      await api.post('/users', newUser);
       
       toast.success('Kullanıcı başarıyla eklendi!');
       setNewUser({ username: '', password: '', role: 'viewer' });
