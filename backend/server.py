@@ -4,6 +4,7 @@ from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
 import os
 import logging
+import math
 from pathlib import Path
 from pydantic import BaseModel, Field, ConfigDict
 from typing import List, Optional
@@ -90,22 +91,34 @@ class CutProduct(BaseModel):
     
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     tarih: str
-    kalinlik: float  # mm
-    en: float  # cm
-    kesilmis_en: float  # cm
-    kesilmis_boy: float  # cm
-    adet: int
-    aciklama: Optional[str] = ""
+    # Ana malzeme
+    ana_kalinlik: float  # mm
+    ana_en: float  # cm
+    ana_metre: float
+    ana_metrekare: float
+    # Kesilecek model
+    kesim_kalinlik: float  # mm
+    kesim_en: float  # cm
+    kesim_boy: float  # cm
+    kesim_renk_kategori: str
+    kesim_renk: str
+    kesim_adet: int  # İstenen kesilmiş ürün adedi
+    kullanilan_ana_adet: int  # Ana malzemeden kaç adet kullanıldı (otomatik hesaplanır)
     timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 class CutProductCreate(BaseModel):
     tarih: str
-    kalinlik: float
-    en: float
-    kesilmis_en: float
-    kesilmis_boy: float
-    adet: int
-    aciklama: Optional[str] = ""
+    ana_kalinlik: float
+    ana_en: float
+    ana_metre: float
+    ana_metrekare: float
+    kesim_kalinlik: float
+    kesim_en: float
+    kesim_boy: float
+    kesim_renk_kategori: str
+    kesim_renk: str
+    kesim_adet: int
+    kullanilan_ana_adet: int
 
 class Stock(BaseModel):
     model_config = ConfigDict(extra="ignore")
@@ -222,14 +235,16 @@ async def get_stock():
             stock_dict[key]['toplam_metrekare'] -= ship['metrekare']
             stock_dict[key]['toplam_adet'] -= ship['adet']
     
-    # Subtract cut products (they consume from raw material)
+    # Subtract cut products (ana malzeme usage)
     for cut in cut_products:
-        key = f"{cut['kalinlik']}_{cut['en']}"
+        key = f"{cut['ana_kalinlik']}_{cut['ana_en']}"
         if key in stock_dict:
-            # Calculate consumed metrekare: (kesilmis_en/100) * (kesilmis_boy/100) * adet
-            consumed_m2 = (cut['kesilmis_en'] / 100) * (cut['kesilmis_boy'] / 100) * cut['adet']
-            stock_dict[key]['toplam_metrekare'] -= consumed_m2
-            stock_dict[key]['toplam_adet'] -= cut['adet']
+            # Deduct the used ana malzeme count
+            stock_dict[key]['toplam_adet'] -= cut['kullanilan_ana_adet']
+            # Also deduct metrekare
+            used_metrekare = cut['ana_metrekare'] * cut['kullanilan_ana_adet']
+            stock_dict[key]['toplam_metrekare'] -= used_metrekare
+            stock_dict[key]['toplam_metre'] -= (cut['ana_metre'] * cut['kullanilan_ana_adet'])
     
     return list(stock_dict.values())
 
