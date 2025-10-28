@@ -352,7 +352,7 @@ async def create_production(input: ProductionCreate):
     return prod_obj
 
 @api_router.get("/production", response_model=List[Production])
-async def get_productions(current_user: dict = Depends(get_current_user)):
+async def get_productions():
     productions = await db.productions.find({}, {"_id": 0}).to_list(1000)
     
     for prod in productions:
