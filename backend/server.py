@@ -108,6 +108,10 @@ async def get_admin_user(current_user: dict = Depends(get_current_user)):
         raise HTTPException(status_code=403, detail="Admin access required")
     return current_user
 
+async def get_viewer_or_admin(current_user: dict = Depends(get_current_user)):
+    # Both admin and viewer can view data
+    return current_user
+
 
 # Initialize admin user
 async def init_admin():
