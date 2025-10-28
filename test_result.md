@@ -292,6 +292,7 @@ test_plan:
     - "Cut Product Management API"
     - "Stock Management API"
     - "User Management API"
+    - "Cut Product Stock Management Test"
   stuck_tasks: []
   test_all: true
   test_priority: "high_first"
