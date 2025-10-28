@@ -415,6 +415,32 @@ class RawMaterialUpdate(BaseModel):
     birim_fiyat: Optional[float] = None
 
 
+# Daily Consumption Models
+class DailyConsumption(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    tarih: str
+    makine: str  # "Makine 1", "Makine 2"
+    petkim_kg: float
+    estol_kg: float  # Otomatik: petkim_kg * 0.03
+    talk_kg: float  # Otomatik: petkim_kg * 0.015
+    fire_kg: float
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+class DailyConsumptionCreate(BaseModel):
+    tarih: str
+    makine: str
+    petkim_kg: float
+    fire_kg: float
+
+class DailyConsumptionUpdate(BaseModel):
+    tarih: Optional[str] = None
+    makine: Optional[str] = None
+    petkim_kg: Optional[float] = None
+    fire_kg: Optional[float] = None
+
+
 # Production endpoints
 @api_router.post("/production", response_model=Production)
 async def create_production(input: ProductionCreate, admin_user: dict = Depends(get_admin_user)):
