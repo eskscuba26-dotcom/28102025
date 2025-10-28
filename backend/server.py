@@ -367,6 +367,54 @@ class Stock(BaseModel):
     toplam_adet: int
 
 
+# Currency Rate Models
+class CurrencyRate(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    usd_rate: float  # 1 USD = X TL
+    eur_rate: float  # 1 EUR = X TL
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_by: str
+
+class CurrencyRateUpdate(BaseModel):
+    usd_rate: float
+    eur_rate: float
+
+
+# Raw Material Models
+class RawMaterial(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    giris_tarihi: str
+    malzeme_adi: str
+    birim: str  # "Kilogram", "Adet", "Litre"
+    miktar: float
+    para_birimi: str  # "TL", "USD", "EUR"
+    birim_fiyat: float
+    toplam_tutar: float
+    kur: Optional[float] = 1.0  # Girişte kullanılan kur
+    tl_tutar: float  # TL karşılığı
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+class RawMaterialCreate(BaseModel):
+    giris_tarihi: str
+    malzeme_adi: str
+    birim: str
+    miktar: float
+    para_birimi: str
+    birim_fiyat: float
+
+class RawMaterialUpdate(BaseModel):
+    giris_tarihi: Optional[str] = None
+    malzeme_adi: Optional[str] = None
+    birim: Optional[str] = None
+    miktar: Optional[float] = None
+    para_birimi: Optional[str] = None
+    birim_fiyat: Optional[float] = None
+
+
 # Production endpoints
 @api_router.post("/production", response_model=Production)
 async def create_production(input: ProductionCreate, admin_user: dict = Depends(get_admin_user)):
