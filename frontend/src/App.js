@@ -4,6 +4,7 @@ import { Home as HomeIcon, Package, Scissors, Truck, BarChart3, Menu, X, Users, 
 import { Button } from '@/components/ui/button';
 import Login from '@/pages/Login';
 import Home from '@/pages/Home';
+import UserManagement from '@/pages/UserManagement';
 import ProductionForm from '@/components/ProductionForm';
 import CutProductForm from '@/components/CutProductForm';
 import ShipmentForm from '@/components/ShipmentForm';
