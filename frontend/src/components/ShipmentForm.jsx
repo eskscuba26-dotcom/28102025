@@ -145,7 +145,7 @@ const ShipmentForm = () => {
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`${API}/shipment/${id}`);
+      await api.delete(`/shipment/${id}`);
       toast.success('Sevkiyat kaydı silindi!');
       fetchShipments();
     } catch (error) {
