@@ -464,6 +464,10 @@ async def get_productions(current_user: dict = Depends(get_viewer_or_admin)):
             prod['timestamp'] = datetime.fromisoformat(prod['timestamp'])
         if 'urun_tipi' not in prod:
             prod['urun_tipi'] = 'Normal'
+        if 'renk_kategori' not in prod:
+            prod['renk_kategori'] = 'Renksiz'
+        if 'renk' not in prod:
+            prod['renk'] = 'Doğal'
     
     return productions
 
