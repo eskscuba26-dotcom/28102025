@@ -237,14 +237,16 @@ async def get_stock():
     
     # Subtract cut products (ana malzeme usage)
     for cut in cut_products:
-        key = f"{cut['ana_kalinlik']}_{cut['ana_en']}"
-        if key in stock_dict:
-            # Deduct the used ana malzeme count
-            stock_dict[key]['toplam_adet'] -= cut['kullanilan_ana_adet']
-            # Also deduct metrekare
-            used_metrekare = cut['ana_metrekare'] * cut['kullanilan_ana_adet']
-            stock_dict[key]['toplam_metrekare'] -= used_metrekare
-            stock_dict[key]['toplam_metre'] -= (cut['ana_metre'] * cut['kullanilan_ana_adet'])
+        # Support both old and new cut product formats
+        if 'ana_kalinlik' in cut and 'ana_en' in cut:
+            key = f"{cut['ana_kalinlik']}_{cut['ana_en']}"
+            if key in stock_dict:
+                # Deduct the used ana malzeme count
+                stock_dict[key]['toplam_adet'] -= cut.get('kullanilan_ana_adet', 0)
+                # Also deduct metrekare
+                used_metrekare = cut.get('ana_metrekare', 0) * cut.get('kullanilan_ana_adet', 0)
+                stock_dict[key]['toplam_metrekare'] -= used_metrekare
+                stock_dict[key]['toplam_metre'] -= (cut.get('ana_metre', 0) * cut.get('kullanilan_ana_adet', 0))
     
     return list(stock_dict.values())
 
