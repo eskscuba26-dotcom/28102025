@@ -45,7 +45,7 @@ const CutProductForm = () => {
 
   const fetchCutProducts = async () => {
     try {
-      const response = await axios.get(`${API}/cut-product`);
+      const response = await api.get('/cut-product');
       setCutProducts(response.data);
     } catch (error) {
       console.error(error);
