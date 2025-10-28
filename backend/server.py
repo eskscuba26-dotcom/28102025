@@ -39,6 +39,8 @@ class Production(BaseModel):
     metrekare: float
     adet: int
     masura_tipi: str
+    renk_kategori: str
+    renk: str
     timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 class ProductionCreate(BaseModel):
@@ -50,6 +52,8 @@ class ProductionCreate(BaseModel):
     metrekare: float
     adet: int
     masura_tipi: str
+    renk_kategori: str
+    renk: str
 
 class Shipment(BaseModel):
     model_config = ConfigDict(extra="ignore")
@@ -80,6 +84,28 @@ class ShipmentCreate(BaseModel):
     arac_plaka: str
     sofor: str
     cikis_saati: str
+
+class CutProduct(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    tarih: str
+    kalinlik: float  # mm
+    en: float  # cm
+    kesilmis_en: float  # cm
+    kesilmis_boy: float  # cm
+    adet: int
+    aciklama: Optional[str] = ""
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+class CutProductCreate(BaseModel):
+    tarih: str
+    kalinlik: float
+    en: float
+    kesilmis_en: float
+    kesilmis_boy: float
+    adet: int
+    aciklama: Optional[str] = ""
 
 class Stock(BaseModel):
     model_config = ConfigDict(extra="ignore")
@@ -135,6 +161,28 @@ async def get_shipments():
     
     return shipments
 
+# Cut Product endpoints
+@api_router.post("/cut-product", response_model=CutProduct)
+async def create_cut_product(input: CutProductCreate):
+    cut_dict = input.model_dump()
+    cut_obj = CutProduct(**cut_dict)
+    
+    doc = cut_obj.model_dump()
+    doc['timestamp'] = doc['timestamp'].isoformat()
+    
+    await db.cut_products.insert_one(doc)
+    return cut_obj
+
+@api_router.get("/cut-product", response_model=List[CutProduct])
+async def get_cut_products():
+    cut_products = await db.cut_products.find({}, {"_id": 0}).to_list(1000)
+    
+    for cut in cut_products:
+        if isinstance(cut['timestamp'], str):
+            cut['timestamp'] = datetime.fromisoformat(cut['timestamp'])
+    
+    return cut_products
+
 # Stock endpoint
 @api_router.get("/stock", response_model=List[Stock])
 async def get_stock():
@@ -143,6 +191,9 @@ async def get_stock():
     
     # Get all shipments
     shipments = await db.shipments.find({}, {"_id": 0}).to_list(10000)
+    
+    # Get all cut products
+    cut_products = await db.cut_products.find({}, {"_id": 0}).to_list(10000)
     
     # Calculate stock by grouping
     stock_dict = {}
@@ -170,6 +221,15 @@ async def get_stock():
             stock_dict[key]['toplam_metre'] -= ship['metre']
             stock_dict[key]['toplam_metrekare'] -= ship['metrekare']
             stock_dict[key]['toplam_adet'] -= ship['adet']
+    
+    # Subtract cut products (they consume from raw material)
+    for cut in cut_products:
+        key = f"{cut['kalinlik']}_{cut['en']}"
+        if key in stock_dict:
+            # Calculate consumed metrekare: (kesilmis_en/100) * (kesilmis_boy/100) * adet
+            consumed_m2 = (cut['kesilmis_en'] / 100) * (cut['kesilmis_boy'] / 100) * cut['adet']
+            stock_dict[key]['toplam_metrekare'] -= consumed_m2
+            stock_dict[key]['toplam_adet'] -= cut['adet']
     
     return list(stock_dict.values())
 

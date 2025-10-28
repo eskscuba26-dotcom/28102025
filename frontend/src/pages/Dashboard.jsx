@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import ProductionForm from '@/components/ProductionForm';
 import ShipmentForm from '@/components/ShipmentForm';
+import CutProductForm from '@/components/CutProductForm';
 import StockView from '@/components/StockView';
 import logo from '@/assets/logo.png';
 
@@ -30,13 +31,20 @@ const Dashboard = () => {
       {/* Main Content */}
       <main className="container mx-auto px-6 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-3 bg-slate-900/50 border border-slate-800">
+          <TabsList className="grid w-full grid-cols-4 bg-slate-900/50 border border-slate-800">
             <TabsTrigger 
               value="production" 
               className="data-[state=active]:bg-emerald-600 data-[state=active]:text-white"
               data-testid="tab-production"
             >
               Üretim Girişi
+            </TabsTrigger>
+            <TabsTrigger 
+              value="cut-product" 
+              className="data-[state=active]:bg-amber-600 data-[state=active]:text-white"
+              data-testid="tab-cut-product"
+            >
+              Kesilmiş Ürün
             </TabsTrigger>
             <TabsTrigger 
               value="shipment" 
@@ -56,6 +64,10 @@ const Dashboard = () => {
 
           <TabsContent value="production" className="mt-6">
             <ProductionForm />
+          </TabsContent>
+
+          <TabsContent value="cut-product" className="mt-6">
+            <CutProductForm />
           </TabsContent>
 
           <TabsContent value="shipment" className="mt-6">

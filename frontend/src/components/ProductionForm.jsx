@@ -10,6 +10,13 @@ import axios from 'axios';
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
 
+const RENK_KATEGORILER = ['Renkli', 'Renksiz', 'Şeffaf'];
+const RENKLER = {
+  'Renkli': ['Sarı', 'Kırmızı', 'Mavi', 'Yeşil', 'Siyah', 'Beyaz'],
+  'Renksiz': ['Doğal'],
+  'Şeffaf': ['Şeffaf']
+};
+
 const ProductionForm = () => {
   const [formData, setFormData] = useState({
     tarih: new Date().toISOString().split('T')[0],
@@ -18,13 +25,24 @@ const ProductionForm = () => {
     en: '',
     metre: '',
     adet: '',
-    masura_tipi: ''
+    masura_tipi: '',
+    renk_kategori: '',
+    renk: ''
   });
 
   const [metrekare, setMetrekare] = useState(0);
 
   const handleChange = (name, value) => {
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData(prev => {
+      const updated = { ...prev, [name]: value };
+      
+      // Reset renk when renk_kategori changes
+      if (name === 'renk_kategori') {
+        updated.renk = '';
+      }
+      
+      return updated;
+    });
 
     // Auto calculate metrekare
     if (name === 'en' || name === 'metre') {
@@ -62,7 +80,9 @@ const ProductionForm = () => {
         en: '',
         metre: '',
         adet: '',
-        masura_tipi: ''
+        masura_tipi: '',
+        renk_kategori: '',
+        renk: ''
       });
       setMetrekare(0);
     } catch (error) {
@@ -188,6 +208,39 @@ const ProductionForm = () => {
                   <SelectItem value="Masura 120" className="text-white">Masura 120</SelectItem>
                   <SelectItem value="Masura 150" className="text-white">Masura 150</SelectItem>
                   <SelectItem value="Masura 200" className="text-white">Masura 200</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="renk_kategori" className="text-slate-200">Renk Kategorisi</Label>
+              <Select value={formData.renk_kategori} onValueChange={(value) => handleChange('renk_kategori', value)} required>
+                <SelectTrigger className="bg-slate-800/50 border-slate-700 text-white" data-testid="production-renk-kategori">
+                  <SelectValue placeholder="Renk kategorisi seçiniz" />
+                </SelectTrigger>
+                <SelectContent className="bg-slate-800 border-slate-700">
+                  {RENK_KATEGORILER.map(kategori => (
+                    <SelectItem key={kategori} value={kategori} className="text-white">{kategori}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="renk" className="text-slate-200">Renk</Label>
+              <Select 
+                value={formData.renk} 
+                onValueChange={(value) => handleChange('renk', value)} 
+                required
+                disabled={!formData.renk_kategori}
+              >
+                <SelectTrigger className="bg-slate-800/50 border-slate-700 text-white" data-testid="production-renk">
+                  <SelectValue placeholder="Renk seçiniz" />
+                </SelectTrigger>
+                <SelectContent className="bg-slate-800 border-slate-700">
+                  {formData.renk_kategori && RENKLER[formData.renk_kategori]?.map(renk => (
+                    <SelectItem key={renk} value={renk} className="text-white">{renk}</SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
