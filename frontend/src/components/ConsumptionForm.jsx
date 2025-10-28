@@ -210,18 +210,26 @@ const ConsumptionForm = ({ userRole }) => {
                 </div>
               </div>
 
-              {formData.petkim_kg && (
+              {(formData.petkim_kg || formData.fire_kg) && (
                 <div className="bg-slate-800/50 border border-slate-700 rounded-lg p-4">
-                  <Label className="text-slate-400 text-sm mb-3 block">Otomatik Hesaplanan Değerler</Label>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <Label className="text-slate-400 text-sm mb-3 block">
+                    Toplam Tüketim (Petkim + Fire dahil)
+                  </Label>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
-                      <Label className="text-slate-400 text-sm">Estol (3%)</Label>
+                      <Label className="text-slate-400 text-sm">Toplam Petkim</Label>
+                      <p className="text-xl font-bold text-white">
+                        {((parseFloat(formData.petkim_kg) || 0) + (parseFloat(formData.fire_kg) || 0)).toFixed(2)} kg
+                      </p>
+                    </div>
+                    <div>
+                      <Label className="text-slate-400 text-sm">Toplam Estol (3%)</Label>
                       <p className="text-xl font-bold text-blue-400">
                         {estolKg.toFixed(2)} kg
                       </p>
                     </div>
                     <div>
-                      <Label className="text-slate-400 text-sm">Talk (1.5%)</Label>
+                      <Label className="text-slate-400 text-sm">Toplam Talk (1.5%)</Label>
                       <p className="text-xl font-bold text-emerald-400">
                         {talkKg.toFixed(2)} kg
                       </p>
