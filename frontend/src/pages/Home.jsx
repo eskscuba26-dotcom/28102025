@@ -91,20 +91,22 @@ const Home = () => {
         rawMaterials.talk -= cons.toplam_talk_tuketim || 0;
       });
 
-      // Subtract masura used in production (1 adet per production)
+      // Subtract masura used in production (adet per production)
       prodRes.data.forEach(prod => {
         const masuraTipi = prod.masura_tipi;
+        const adet = prod.adet || 0;  // Üretilen adet kadar masura kullanılıyor
+        
         if (!masuraTipi) return;
         
         // Handle both "100" and "Masura 100" formats
         if (masuraTipi.includes('100')) {
-          rawMaterials.masura100 -= 1;
+          rawMaterials.masura100 -= adet;  // Üretilen adet kadar düş
         } else if (masuraTipi.includes('120')) {
-          rawMaterials.masura120 -= 1;
+          rawMaterials.masura120 -= adet;
         } else if (masuraTipi.includes('150')) {
-          rawMaterials.masura150 -= 1;
+          rawMaterials.masura150 -= adet;
         } else if (masuraTipi.includes('200')) {
-          rawMaterials.masura200 -= 1;
+          rawMaterials.masura200 -= adet;
         }
       });
 
