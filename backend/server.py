@@ -400,7 +400,7 @@ async def create_shipment(input: ShipmentCreate):
     return ship_obj
 
 @api_router.get("/shipment", response_model=List[Shipment])
-async def get_shipments(current_user: dict = Depends(get_current_user)):
+async def get_shipments():
     shipments = await db.shipments.find({}, {"_id": 0}).to_list(1000)
     
     for ship in shipments:
