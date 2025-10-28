@@ -128,8 +128,15 @@ const CutProductForm = () => {
         kullanilan_ana_adet: kullanilanAnaAdet
       };
 
-      await axios.post(`${API}/cut-product`, payload);
-      toast.success(`Kesilmiş ürün kaydı eklendi! ${kullanilanAnaAdet} adet ana malzeme stoktan düştü.`);
+      if (editingId) {
+        // For edit, we can't change cut product, so just show message
+        toast.info('Kesilmiş ürün düzenleme henüz desteklenmiyor. Silip yeniden ekleyin.');
+        setEditingId(null);
+        setIsEditDialogOpen(false);
+      } else {
+        await axios.post(`${API}/cut-product`, payload);
+        toast.success(`Kesilmiş ürün kaydı eklendi! ${kullanilanAnaAdet} adet ana malzeme stoktan düştü.`);
+      }
       
       setFormData({
         tarih: new Date().toISOString().split('T')[0],
