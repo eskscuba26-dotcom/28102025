@@ -63,9 +63,8 @@ const StockView = () => {
                   <TableHead className="text-slate-200 font-semibold">Ürün Tipi</TableHead>
                   <TableHead className="text-slate-200 font-semibold">Kalınlık (mm)</TableHead>
                   <TableHead className="text-slate-200 font-semibold">En (cm)</TableHead>
-                  <TableHead className="text-slate-200 font-semibold">Boy (cm)</TableHead>
+                  <TableHead className="text-slate-200 font-semibold">Metre / Boy</TableHead>
                   <TableHead className="text-slate-200 font-semibold">Renk</TableHead>
-                  <TableHead className="text-slate-200 font-semibold">Toplam Metre</TableHead>
                   <TableHead className="text-slate-200 font-semibold">Toplam m²</TableHead>
                   <TableHead className="text-slate-200 font-semibold">Toplam Adet</TableHead>
                 </TableRow>
@@ -81,7 +80,11 @@ const StockView = () => {
                     <TableCell className="text-slate-300">{stock.kalinlik}</TableCell>
                     <TableCell className="text-slate-300">{stock.en}</TableCell>
                     <TableCell className="text-slate-300">
-                      {stock.boy ? stock.boy.toFixed(2) : '-'}
+                      {stock.urun_tipi === 'Normal' ? (
+                        <span>{stock.toplam_metre ? stock.toplam_metre.toFixed(2) + ' m' : '-'}</span>
+                      ) : (
+                        <span>{stock.boy ? stock.boy.toFixed(2) + ' cm' : '-'}</span>
+                      )}
                     </TableCell>
                     <TableCell className="text-slate-300">
                       <span className="text-xs bg-slate-700 px-2 py-1 rounded">
@@ -89,9 +92,6 @@ const StockView = () => {
                       </span>
                       {' '}
                       <span className="font-semibold">{stock.renk}</span>
-                    </TableCell>
-                    <TableCell className="text-slate-300">
-                      {stock.toplam_metre ? stock.toplam_metre.toFixed(2) : '-'}
                     </TableCell>
                     <TableCell className="text-emerald-400 font-semibold">
                       {stock.toplam_metrekare.toFixed(2)}
