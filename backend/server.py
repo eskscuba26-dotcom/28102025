@@ -389,7 +389,7 @@ async def delete_production(prod_id: str, current_user: dict = Depends(get_curre
 
 # Shipment endpoints
 @api_router.post("/shipment", response_model=Shipment)
-async def create_shipment(input: ShipmentCreate):
+async def create_shipment(input: ShipmentCreate, current_user: dict = Depends(get_current_user)):
     ship_dict = input.model_dump()
     ship_obj = Shipment(**ship_dict)
     
@@ -400,7 +400,7 @@ async def create_shipment(input: ShipmentCreate):
     return ship_obj
 
 @api_router.get("/shipment", response_model=List[Shipment])
-async def get_shipments():
+async def get_shipments(current_user: dict = Depends(get_current_user)):
     shipments = await db.shipments.find({}, {"_id": 0}).to_list(1000)
     
     for ship in shipments:
@@ -415,7 +415,7 @@ async def get_shipments():
     return shipments
 
 @api_router.put("/shipment/{ship_id}", response_model=Shipment)
-async def update_shipment(ship_id: str, update: ShipmentUpdate):
+async def update_shipment(ship_id: str, update: ShipmentUpdate, current_user: dict = Depends(get_current_user)):
     ship = await db.shipments.find_one({"id": ship_id})
     if not ship:
         raise HTTPException(status_code=404, detail="Shipment not found")
@@ -431,7 +431,7 @@ async def update_shipment(ship_id: str, update: ShipmentUpdate):
     return Shipment(**updated_ship)
 
 @api_router.delete("/shipment/{ship_id}")
-async def delete_shipment(ship_id: str):
+async def delete_shipment(ship_id: str, current_user: dict = Depends(get_current_user)):
     result = await db.shipments.delete_one({"id": ship_id})
     if result.deleted_count == 0:
         raise HTTPException(status_code=404, detail="Shipment not found")
