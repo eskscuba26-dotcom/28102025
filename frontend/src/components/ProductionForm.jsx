@@ -411,6 +411,7 @@ const ProductionForm = ({ userRole }) => {
                         </div>
                         )}
                       </TableCell>
+                      )}
                     </TableRow>
                   ))}
                 </TableBody>
