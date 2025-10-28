@@ -422,10 +422,12 @@ class DailyConsumption(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     tarih: str
     makine: str  # "Makine 1", "Makine 2"
-    petkim_kg: float
-    estol_kg: float  # Otomatik: petkim_kg * 0.03
-    talk_kg: float  # Otomatik: petkim_kg * 0.015
-    fire_kg: float
+    petkim_kg: float  # Manuel giriş
+    fire_kg: float  # Manuel giriş
+    # Otomatik hesaplanan değerler (petkim + fire birlikte)
+    toplam_petkim_tuketim: float  # petkim_kg + fire_kg
+    toplam_estol_tuketim: float  # (petkim_kg + fire_kg) * 0.03
+    toplam_talk_tuketim: float  # (petkim_kg + fire_kg) * 0.015
     timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 class DailyConsumptionCreate(BaseModel):
