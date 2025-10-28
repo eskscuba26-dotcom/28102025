@@ -655,10 +655,9 @@ async def get_stock(current_user: dict = Depends(get_viewer_or_admin)):
         renk = ship.get('renk', 'Doğal')
         
         if urun_tipi == 'Kesilmiş':
-            # For kesilmiş ürün, metre field contains boy in meters
-            # Keep it in meters to match with cut product boy (which is also in meters)
-            boy = ship.get('metre', 0)  # Don't convert, keep in meters
-            key = f"Kesilmiş_{ship['kalinlik']}_{ship['en']}_{boy}_{renk_kategori}_{renk}"
+            # For kesilmiş ürün, metre field contains boy in CM (not meters!)
+            boy_cm = ship.get('metre', 0)  # It's actually in CM
+            key = f"Kesilmiş_{ship['kalinlik']}_{ship['en']}_{boy_cm}_{renk_kategori}_{renk}"
         else:
             key = f"Normal_{ship['kalinlik']}_{ship['en']}_{renk_kategori}_{renk}"
         
@@ -668,19 +667,19 @@ async def get_stock(current_user: dict = Depends(get_viewer_or_admin)):
             # If exact match not found, try to find similar cut products
             if urun_tipi == 'Kesilmiş':
                 # Check for similar keys with boy values close to this one
-                boy_meters = ship.get('metre', 0)
+                boy_cm_ship = ship.get('metre', 0)
                 kalinlik = ship['kalinlik']
                 en = ship['en']
                 
-                # Try to match within 0.01 meter (1cm) tolerance
+                # Try to match within 1cm tolerance
                 for stock_key in list(stock_dict.keys()):
                     if stock_key.startswith(f"Kesilmiş_{kalinlik}_{en}_"):
                         parts = stock_key.split('_')
                         if len(parts) >= 4:
                             try:
                                 stock_boy = float(parts[3])
-                                # If within 1cm tolerance (0.01 meters), use this stock
-                                if abs(stock_boy - boy_meters) <= 0.01:
+                                # If within 1cm tolerance, use this stock
+                                if abs(stock_boy - boy_cm_ship) <= 1:
                                     stock_dict[stock_key]['toplam_adet'] -= ship['adet']
                                     break
                             except ValueError:
