@@ -191,22 +191,7 @@ const CutProductForm = () => {
 
             {/* Ana Malzeme Bölümü */}
             <div className="border border-slate-700 rounded-lg p-4 space-y-4 bg-slate-800/30">
-              <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold text-emerald-400">Ana Malzeme</h3>
-                {kullanilanAnaAdet > 0 && (
-                  <div className="bg-emerald-950/50 border-2 border-emerald-500 rounded-lg px-4 py-2">
-                    <p className="text-emerald-300 text-sm">
-                      <span className="font-normal">Kullanılacak Ana Malzeme:</span>
-                    </p>
-                    <p className="text-emerald-400 text-2xl font-bold text-center">
-                      {kullanilanAnaAdet} ADET
-                    </p>
-                    <p className="text-emerald-300 text-xs text-center mt-1">
-                      ({formData.kesim_adet} adet kesilmiş ürün için)
-                    </p>
-                  </div>
-                )}
-              </div>
+              <h3 className="text-lg font-semibold text-emerald-400">Ana Malzeme</h3>
             
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 <div className="space-y-2">
