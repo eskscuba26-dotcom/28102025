@@ -59,10 +59,7 @@ const UserManagement = () => {
 
   const handleDeleteUser = async (userId) => {
     try {
-      const token = localStorage.getItem('token');
-      await axios.delete(`${API}/users/${userId}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      await api.delete(`/users/${userId}`);
       
       toast.success('Kullanıcı silindi!');
       fetchUsers();
