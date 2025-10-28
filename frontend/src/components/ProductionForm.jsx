@@ -18,7 +18,7 @@ const RENKLER = {
   'Şeffaf': ['Şeffaf']
 };
 
-const ProductionForm = () => {
+const ProductionForm = ({ userRole }) => {
   const [formData, setFormData] = useState({
     tarih: new Date().toISOString().split('T')[0],
     makine: '',
@@ -35,6 +35,8 @@ const ProductionForm = () => {
   const [productions, setProductions] = useState([]);
   const [editingId, setEditingId] = useState(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  
+  const isAdmin = userRole === 'admin';
 
   useEffect(() => {
     fetchProductions();
