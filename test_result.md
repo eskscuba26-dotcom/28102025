@@ -234,6 +234,18 @@ backend:
         agent: "testing"
         comment: "User management API fully functional. GET /api/users returns user list for admin users. Admin-only access properly enforced. Default admin user (admin/SAR2025!) successfully created and accessible."
 
+  - task: "Cut Product Stock Management Test"
+    implemented: true
+    working: true
+    file: "backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "Cut product stock management test completed successfully. Scenario: 1) Added cut product (1.5mm x 100mm x 200cm, 10 pieces), 2) Created shipment (5 pieces), 3) Verified stock decreased from 10 to 5 pieces. Stock calculation logic working correctly for kesilmiş ürün. All APIs (cut-product POST, shipment POST, stock GET) functioning properly."
+
 frontend:
   - task: "Frontend Authentication Integration"
     implemented: true
