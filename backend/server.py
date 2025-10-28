@@ -369,7 +369,7 @@ class Stock(BaseModel):
 
 # Production endpoints
 @api_router.post("/production", response_model=Production)
-async def create_production(input: ProductionCreate, current_user: dict = Depends(get_current_user)):
+async def create_production(input: ProductionCreate, admin_user: dict = Depends(get_admin_user)):
     prod_dict = input.model_dump()
     prod_obj = Production(**prod_dict)
     
@@ -380,7 +380,7 @@ async def create_production(input: ProductionCreate, current_user: dict = Depend
     return prod_obj
 
 @api_router.get("/production", response_model=List[Production])
-async def get_productions(current_user: dict = Depends(get_current_user)):
+async def get_productions(current_user: dict = Depends(get_viewer_or_admin)):
     productions = await db.productions.find({}, {"_id": 0}).to_list(1000)
     
     for prod in productions:
@@ -392,7 +392,7 @@ async def get_productions(current_user: dict = Depends(get_current_user)):
     return productions
 
 @api_router.put("/production/{prod_id}", response_model=Production)
-async def update_production(prod_id: str, update: ProductionUpdate, current_user: dict = Depends(get_current_user)):
+async def update_production(prod_id: str, update: ProductionUpdate, admin_user: dict = Depends(get_admin_user)):
     prod = await db.productions.find_one({"id": prod_id})
     if not prod:
         raise HTTPException(status_code=404, detail="Production not found")
@@ -408,7 +408,7 @@ async def update_production(prod_id: str, update: ProductionUpdate, current_user
     return Production(**updated_prod)
 
 @api_router.delete("/production/{prod_id}")
-async def delete_production(prod_id: str, current_user: dict = Depends(get_current_user)):
+async def delete_production(prod_id: str, admin_user: dict = Depends(get_admin_user)):
     result = await db.productions.delete_one({"id": prod_id})
     if result.deleted_count == 0:
         raise HTTPException(status_code=404, detail="Production not found")
