@@ -471,7 +471,7 @@ async def create_cut_product(input: CutProductCreate):
     return cut_obj
 
 @api_router.get("/cut-product", response_model=List[CutProduct])
-async def get_cut_products(current_user: dict = Depends(get_current_user)):
+async def get_cut_products():
     cut_products = await db.cut_products.find({}, {"_id": 0}).to_list(1000)
     
     for cut in cut_products:
