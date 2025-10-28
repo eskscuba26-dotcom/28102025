@@ -111,7 +111,7 @@ async def init_admin():
     if not admin_exists:
         admin_user = User(
             username="admin",
-            password_hash=hash_password("SAR_2025_GuvenlI_SifrE!@#"),
+            password_hash=hash_password("SAR2025!"),
             role="admin"
         )
         doc = admin_user.model_dump()
