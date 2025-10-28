@@ -76,19 +76,26 @@ const UserManagement = () => {
       return;
     }
 
+    if (passwordChange.newPassword.length < 6) {
+      toast.error('Yeni şifre en az 6 karakter olmalı!');
+      return;
+    }
+
     try {
-      // First verify current password by attempting login
-      await api.post('/auth/login', {
-        username: currentUsername,
-        password: passwordChange.currentPassword
+      await api.post('/auth/change-password', {
+        current_password: passwordChange.currentPassword,
+        new_password: passwordChange.newPassword
       });
 
-      // Then change password (we'll need to add this endpoint or use user update)
-      toast.success('Şifre değiştirme özelliği yakında eklenecek!');
+      toast.success('Şifreniz başarıyla değiştirildi!');
       setPasswordChange({ currentPassword: '', newPassword: '', confirmPassword: '' });
       setIsPasswordDialogOpen(false);
     } catch (error) {
-      toast.error('Mevcut şifre hatalı!');
+      if (error.response?.status === 401) {
+        toast.error('Mevcut şifre hatalı!');
+      } else {
+        toast.error('Şifre değiştirilemedi!');
+      }
     }
   };
 
