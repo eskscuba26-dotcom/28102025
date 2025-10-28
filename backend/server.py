@@ -569,13 +569,35 @@ async def get_stock(current_user: dict = Depends(get_current_user)):
         renk = ship.get('renk', 'Doğal')
         
         if urun_tipi == 'Kesilmiş':
-            boy = ship.get('metre', 0) * 100
+            # For kesilmiş ürün, metre field actually contains boy in meters, convert to cm
+            boy = ship.get('metre', 0) * 100  # Convert meters to cm
             key = f"Kesilmiş_{ship['kalinlik']}_{ship['en']}_{boy}_{renk_kategori}_{renk}"
         else:
             key = f"Normal_{ship['kalinlik']}_{ship['en']}_{renk_kategori}_{renk}"
         
         if key in stock_dict:
             stock_dict[key]['toplam_adet'] -= ship['adet']
+        else:
+            # If exact match not found, try to find similar cut products
+            if urun_tipi == 'Kesilmiş':
+                # Check for similar keys with boy values close to this one
+                boy_cm = ship.get('metre', 0) * 100
+                kalinlik = ship['kalinlik']
+                en = ship['en']
+                
+                # Try to match within 1cm tolerance
+                for stock_key in list(stock_dict.keys()):
+                    if stock_key.startswith(f"Kesilmiş_{kalinlik}_{en}_"):
+                        parts = stock_key.split('_')
+                        if len(parts) >= 4:
+                            try:
+                                stock_boy = float(parts[3])
+                                # If within 1cm tolerance, use this stock
+                                if abs(stock_boy - boy_cm) <= 1:
+                                    stock_dict[stock_key]['toplam_adet'] -= ship['adet']
+                                    break
+                            except ValueError:
+                                continue
     
     # Subtract cut products from ana malzeme (normal stock)
     for cut in cut_products:
