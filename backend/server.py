@@ -468,7 +468,7 @@ async def delete_shipment(ship_id: str, admin_user: dict = Depends(get_admin_use
 
 # Cut Product endpoints
 @api_router.post("/cut-product", response_model=CutProduct)
-async def create_cut_product(input: CutProductCreate, current_user: dict = Depends(get_current_user)):
+async def create_cut_product(input: CutProductCreate, admin_user: dict = Depends(get_admin_user)):
     cut_dict = input.model_dump()
     cut_obj = CutProduct(**cut_dict)
     
@@ -480,7 +480,7 @@ async def create_cut_product(input: CutProductCreate, current_user: dict = Depen
     return cut_obj
 
 @api_router.get("/cut-product", response_model=List[CutProduct])
-async def get_cut_products(current_user: dict = Depends(get_current_user)):
+async def get_cut_products(current_user: dict = Depends(get_viewer_or_admin)):
     cut_products = await db.cut_products.find({}, {"_id": 0}).to_list(1000)
     
     # Filter only new format cut products
@@ -502,7 +502,7 @@ async def get_cut_products(current_user: dict = Depends(get_current_user)):
     return valid_cuts
 
 @api_router.delete("/cut-product/{cut_id}")
-async def delete_cut_product(cut_id: str, current_user: dict = Depends(get_current_user)):
+async def delete_cut_product(cut_id: str, admin_user: dict = Depends(get_admin_user)):
     result = await db.cut_products.delete_one({"id": cut_id})
     if result.deleted_count == 0:
         raise HTTPException(status_code=404, detail="Cut product not found")
