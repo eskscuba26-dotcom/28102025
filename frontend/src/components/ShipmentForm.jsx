@@ -90,12 +90,12 @@ const ShipmentForm = () => {
       };
 
       if (editingId) {
-        await axios.put(`${API}/shipment/${editingId}`, payload);
+        await api.put(`/shipment/${editingId}`, payload);
         toast.success('Sevkiyat kaydı güncellendi!');
         setEditingId(null);
         setIsEditDialogOpen(false);
       } else {
-        await axios.post(`${API}/shipment`, payload);
+        await api.post('/shipment', payload);
         toast.success('Sevkiyat kaydı eklendi!');
       }
       
