@@ -660,12 +660,17 @@ async def get_stock(current_user: dict = Depends(get_viewer_or_admin)):
             # For kesilmiş ürün, metre field contains boy in CM (not meters!)
             boy_cm = ship.get('metre', 0)  # It's actually in CM
             key = f"Kesilmiş_{ship['kalinlik']}_{ship['en']}_{boy_cm}_{renk_kategori}_{renk}"
+            logging.info(f"[SEVKİYAT] Subtracting key: {key}, adet: {ship['adet']}")
         else:
             key = f"Normal_{ship['kalinlik']}_{ship['en']}_{renk_kategori}_{renk}"
         
         if key in stock_dict:
+            logging.info(f"[EŞLEŞME] Key found: {key}, before: {stock_dict[key]['toplam_adet']}, subtract: {ship['adet']}")
             stock_dict[key]['toplam_adet'] -= ship['adet']
+            logging.info(f"[EŞLEŞME] After: {stock_dict[key]['toplam_adet']}")
         else:
+            logging.warning(f"[EŞLEŞMEME] Key not found in stock_dict: {key}")
+            logging.info(f"[EŞLEŞMEME] Available keys: {list(stock_dict.keys())}")
             # If exact match not found, try to find similar cut products
             if urun_tipi == 'Kesilmiş':
                 # Check for similar keys with boy values close to this one
