@@ -126,10 +126,10 @@ const ConsumptionForm = ({ userRole }) => {
 
   const getTotals = () => {
     return consumptions.reduce((totals, cons) => ({
-      petkim: totals.petkim + cons.petkim_kg,
-      estol: totals.estol + cons.estol_kg,
-      talk: totals.talk + cons.talk_kg,
-      fire: totals.fire + cons.fire_kg
+      petkim: totals.petkim + (cons.toplam_petkim_tuketim || 0),
+      estol: totals.estol + (cons.toplam_estol_tuketim || 0),
+      talk: totals.talk + (cons.toplam_talk_tuketim || 0),
+      fire: totals.fire + (cons.fire_kg || 0)
     }), { petkim: 0, estol: 0, talk: 0, fire: 0 });
   };
 
