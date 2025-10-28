@@ -162,17 +162,18 @@ const ProductionForm = ({ userRole }) => {
 
   return (
     <div className="space-y-6">
-      <Card className="bg-slate-900/50 border-slate-800 backdrop-blur-sm">
-        <CardHeader>
-          <CardTitle className="text-white" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
-            Üretim Girişi
-          </CardTitle>
-          <CardDescription className="text-slate-400">
-            Yeni üretim kaydı oluşturun
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
+      {isAdmin && (
+        <Card className="bg-slate-900/50 border-slate-800 backdrop-blur-sm">
+          <CardHeader>
+            <CardTitle className="text-white" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
+              Üretim Girişi
+            </CardTitle>
+            <CardDescription className="text-slate-400">
+              Yeni üretim kaydı oluşturun
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="tarih" className="text-slate-200">Tarih</Label>
