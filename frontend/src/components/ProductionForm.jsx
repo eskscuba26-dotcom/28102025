@@ -85,12 +85,12 @@ const ProductionForm = () => {
       };
 
       if (editingId) {
-        await axios.put(`${API}/production/${editingId}`, payload);
+        await api.put(`/production/${editingId}`, payload);
         toast.success('Üretim kaydı güncellendi!');
         setEditingId(null);
         setIsEditDialogOpen(false);
       } else {
-        await axios.post(`${API}/production`, payload);
+        await api.post('/production', payload);
         toast.success('Üretim kaydı eklendi!');
       }
       
