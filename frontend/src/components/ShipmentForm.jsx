@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from 'sonner';
 import axios from 'axios';
@@ -9,14 +10,24 @@ import axios from 'axios';
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
 
+const RENK_KATEGORILER = ['Renkli', 'Renksiz', 'Şeffaf'];
+const RENKLER = {
+  'Renkli': ['Sarı', 'Kırmızı', 'Mavi', 'Yeşil', 'Siyah', 'Beyaz'],
+  'Renksiz': ['Doğal'],
+  'Şeffaf': ['Şeffaf']
+};
+
 const ShipmentForm = () => {
   const [formData, setFormData] = useState({
     tarih: new Date().toISOString().split('T')[0],
     alici_firma: '',
+    urun_tipi: 'Normal',
     kalinlik: '',
     en: '',
     metre: '',
     adet: '',
+    renk_kategori: '',
+    renk: '',
     irsaliye_no: '',
     arac_plaka: '',
     sofor: '',
@@ -26,7 +37,16 @@ const ShipmentForm = () => {
   const [metrekare, setMetrekare] = useState(0);
 
   const handleChange = (name, value) => {
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData(prev => {
+      const updated = { ...prev, [name]: value };
+      
+      // Reset renk when renk_kategori changes
+      if (name === 'renk_kategori') {
+        updated.renk = '';
+      }
+      
+      return updated;
+    });
 
     // Auto calculate metrekare
     if (name === 'en' || name === 'metre') {
@@ -60,10 +80,13 @@ const ShipmentForm = () => {
       setFormData({
         tarih: new Date().toISOString().split('T')[0],
         alici_firma: '',
+        urun_tipi: 'Normal',
         kalinlik: '',
         en: '',
         metre: '',
         adet: '',
+        renk_kategori: '',
+        renk: '',
         irsaliye_no: '',
         arac_plaka: '',
         sofor: '',
@@ -116,6 +139,19 @@ const ShipmentForm = () => {
             </div>
 
             <div className="space-y-2">
+              <Label htmlFor="urun_tipi" className="text-slate-200">Ürün Tipi</Label>
+              <Select value={formData.urun_tipi} onValueChange={(value) => handleChange('urun_tipi', value)} required>
+                <SelectTrigger className="bg-slate-800/50 border-slate-700 text-white" data-testid="shipment-urun-tipi">
+                  <SelectValue placeholder="Ürün tipi seçiniz" />
+                </SelectTrigger>
+                <SelectContent className="bg-slate-800 border-slate-700">
+                  <SelectItem value="Normal" className="text-white">Normal Ürün</SelectItem>
+                  <SelectItem value="Kesilmiş" className="text-white">Kesilmiş Ürün</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
               <Label htmlFor="kalinlik" className="text-slate-200">Kalınlık (mm)</Label>
               <Input
                 id="kalinlik"
@@ -144,7 +180,7 @@ const ShipmentForm = () => {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="metre" className="text-slate-200">Metre</Label>
+              <Label htmlFor="metre" className="text-slate-200">{formData.urun_tipi === 'Kesilmiş' ? 'Boy (cm)' : 'Metre'}</Label>
               <Input
                 id="metre"
                 type="number"
@@ -180,6 +216,39 @@ const ShipmentForm = () => {
                 data-testid="shipment-adet"
                 required
               />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="renk_kategori" className="text-slate-200">Renk Kategorisi</Label>
+              <Select value={formData.renk_kategori} onValueChange={(value) => handleChange('renk_kategori', value)} required>
+                <SelectTrigger className="bg-slate-800/50 border-slate-700 text-white" data-testid="shipment-renk-kategori">
+                  <SelectValue placeholder="Renk kategorisi seçiniz" />
+                </SelectTrigger>
+                <SelectContent className="bg-slate-800 border-slate-700">
+                  {RENK_KATEGORILER.map(kategori => (
+                    <SelectItem key={kategori} value={kategori} className="text-white">{kategori}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="renk" className="text-slate-200">Renk</Label>
+              <Select 
+                value={formData.renk} 
+                onValueChange={(value) => handleChange('renk', value)} 
+                required
+                disabled={!formData.renk_kategori}
+              >
+                <SelectTrigger className="bg-slate-800/50 border-slate-700 text-white" data-testid="shipment-renk">
+                  <SelectValue placeholder="Renk seçiniz" />
+                </SelectTrigger>
+                <SelectContent className="bg-slate-800 border-slate-700">
+                  {formData.renk_kategori && RENKLER[formData.renk_kategori]?.map(renk => (
+                    <SelectItem key={renk} value={renk} className="text-white">{renk}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
 
             <div className="space-y-2">

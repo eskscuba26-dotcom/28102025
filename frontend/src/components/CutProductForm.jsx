@@ -24,6 +24,8 @@ const CutProductForm = () => {
     ana_kalinlik: '',
     ana_en: '',
     ana_metre: '',
+    ana_renk_kategori: '',
+    ana_renk: '',
     // Kesilecek model
     kesim_kalinlik: '',
     kesim_en: '',
@@ -81,6 +83,9 @@ const CutProductForm = () => {
       const updated = { ...prev, [name]: value };
       
       // Reset renk when renk_kategori changes
+      if (name === 'ana_renk_kategori') {
+        updated.ana_renk = '';
+      }
       if (name === 'kesim_renk_kategori') {
         updated.kesim_renk = '';
       }
@@ -104,6 +109,8 @@ const CutProductForm = () => {
         ana_en: parseFloat(formData.ana_en),
         ana_metre: parseFloat(formData.ana_metre),
         ana_metrekare: parseFloat(anaMetrekare),
+        ana_renk_kategori: formData.ana_renk_kategori,
+        ana_renk: formData.ana_renk,
         kesim_kalinlik: parseFloat(formData.kesim_kalinlik),
         kesim_en: parseFloat(formData.kesim_en),
         kesim_boy: parseFloat(formData.kesim_boy),
@@ -122,6 +129,8 @@ const CutProductForm = () => {
         ana_kalinlik: '',
         ana_en: '',
         ana_metre: '',
+        ana_renk_kategori: '',
+        ana_renk: '',
         kesim_kalinlik: '',
         kesim_en: '',
         kesim_boy: '',
@@ -164,9 +173,18 @@ const CutProductForm = () => {
 
           {/* Ana Malzeme Bölümü */}
           <div className="border border-slate-700 rounded-lg p-4 space-y-4 bg-slate-800/30">
-            <h3 className="text-lg font-semibold text-emerald-400">Ana Malzeme</h3>
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-semibold text-emerald-400">Ana Malzeme</h3>
+              {kullanilanAnaAdet > 0 && (
+                <div className="bg-emerald-950/50 border border-emerald-700 rounded px-3 py-1">
+                  <p className="text-emerald-300 text-sm font-semibold">
+                    Kullanılacak: <span className="text-emerald-400 text-lg">{kullanilanAnaAdet}</span> adet
+                  </p>
+                </div>
+              )}
+            </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="ana_kalinlik" className="text-slate-200">Kalınlık (mm)</Label>
                 <Input
@@ -220,6 +238,39 @@ const CutProductForm = () => {
                   readOnly
                 />
               </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="ana_renk_kategori" className="text-slate-200">Renk Kategorisi</Label>
+                <Select value={formData.ana_renk_kategori} onValueChange={(value) => handleChange('ana_renk_kategori', value)} required>
+                  <SelectTrigger className="bg-slate-800/50 border-slate-700 text-white" data-testid="cut-ana-renk-kategori">
+                    <SelectValue placeholder="Renk kategorisi" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-slate-800 border-slate-700">
+                    {RENK_KATEGORILER.map(kategori => (
+                      <SelectItem key={kategori} value={kategori} className="text-white">{kategori}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="ana_renk" className="text-slate-200">Renk</Label>
+                <Select 
+                  value={formData.ana_renk} 
+                  onValueChange={(value) => handleChange('ana_renk', value)} 
+                  required
+                  disabled={!formData.ana_renk_kategori}
+                >
+                  <SelectTrigger className="bg-slate-800/50 border-slate-700 text-white" data-testid="cut-ana-renk">
+                    <SelectValue placeholder="Renk seçiniz" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-slate-800 border-slate-700">
+                    {formData.ana_renk_kategori && RENKLER[formData.ana_renk_kategori]?.map(renk => (
+                      <SelectItem key={renk} value={renk} className="text-white">{renk}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
           </div>
 
@@ -227,7 +278,7 @@ const CutProductForm = () => {
           <div className="border border-slate-700 rounded-lg p-4 space-y-4 bg-slate-800/30">
             <h3 className="text-lg font-semibold text-amber-400">Kesilecek / Ebatlanacak Model</h3>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="kesim_kalinlik" className="text-slate-200">Kalınlık (mm)</Label>
                 <Input
@@ -287,7 +338,7 @@ const CutProductForm = () => {
                 <Label htmlFor="kesim_renk_kategori" className="text-slate-200">Renk Kategorisi</Label>
                 <Select value={formData.kesim_renk_kategori} onValueChange={(value) => handleChange('kesim_renk_kategori', value)} required>
                   <SelectTrigger className="bg-slate-800/50 border-slate-700 text-white" data-testid="cut-kesim-renk-kategori">
-                    <SelectValue placeholder="Renk kategorisi seçiniz" />
+                    <SelectValue placeholder="Renk kategorisi" />
                   </SelectTrigger>
                   <SelectContent className="bg-slate-800 border-slate-700">
                     {RENK_KATEGORILER.map(kategori => (
@@ -317,15 +368,6 @@ const CutProductForm = () => {
               </div>
             </div>
           </div>
-
-          {/* Hesaplanan Bilgi */}
-          {kullanilanAnaAdet > 0 && (
-            <div className="bg-blue-950/30 border border-blue-700 rounded-lg p-4">
-              <p className="text-blue-300 text-sm font-semibold">
-                ⚠️ Bu kesim için <span className="text-blue-400 text-lg">{kullanilanAnaAdet}</span> adet ana malzeme kullanılacaktır.
-              </p>
-            </div>
-          )}
 
           <Button 
             type="submit" 

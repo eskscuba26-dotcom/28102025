@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
 import axios from 'axios';
 
@@ -30,6 +31,13 @@ const StockView = () => {
     return () => clearInterval(interval);
   }, []);
 
+  const getUrunTipiBadge = (tip) => {
+    if (tip === 'Kesilmiş') {
+      return <Badge className="bg-amber-600 hover:bg-amber-700">Kesilmiş</Badge>;
+    }
+    return <Badge className="bg-emerald-600 hover:bg-emerald-700">Normal</Badge>;
+  };
+
   return (
     <Card className="bg-slate-900/50 border-slate-800 backdrop-blur-sm">
       <CardHeader>
@@ -52,11 +60,13 @@ const StockView = () => {
             <Table>
               <TableHeader className="bg-slate-800/50">
                 <TableRow className="border-slate-700 hover:bg-slate-800/50">
-                  <TableHead className="text-slate-200 font-semibold">Model</TableHead>
+                  <TableHead className="text-slate-200 font-semibold">Ürün Tipi</TableHead>
                   <TableHead className="text-slate-200 font-semibold">Kalınlık (mm)</TableHead>
                   <TableHead className="text-slate-200 font-semibold">En (cm)</TableHead>
+                  <TableHead className="text-slate-200 font-semibold">Boy (cm)</TableHead>
+                  <TableHead className="text-slate-200 font-semibold">Renk</TableHead>
                   <TableHead className="text-slate-200 font-semibold">Toplam Metre</TableHead>
-                  <TableHead className="text-slate-200 font-semibold">Toplam Metrekare</TableHead>
+                  <TableHead className="text-slate-200 font-semibold">Toplam m²</TableHead>
                   <TableHead className="text-slate-200 font-semibold">Toplam Adet</TableHead>
                 </TableRow>
               </TableHeader>
@@ -67,14 +77,26 @@ const StockView = () => {
                     className="border-slate-800 hover:bg-slate-800/30"
                     data-testid={`stock-row-${index}`}
                   >
-                    <TableCell className="text-white font-medium">{stock.model}</TableCell>
+                    <TableCell className="text-white">{getUrunTipiBadge(stock.urun_tipi)}</TableCell>
                     <TableCell className="text-slate-300">{stock.kalinlik}</TableCell>
                     <TableCell className="text-slate-300">{stock.en}</TableCell>
-                    <TableCell className="text-slate-300">{stock.toplam_metre.toFixed(2)}</TableCell>
+                    <TableCell className="text-slate-300">
+                      {stock.boy ? stock.boy.toFixed(2) : '-'}
+                    </TableCell>
+                    <TableCell className="text-slate-300">
+                      <span className="text-xs bg-slate-700 px-2 py-1 rounded">
+                        {stock.renk_kategori}
+                      </span>
+                      {' '}
+                      <span className="font-semibold">{stock.renk}</span>
+                    </TableCell>
+                    <TableCell className="text-slate-300">
+                      {stock.toplam_metre ? stock.toplam_metre.toFixed(2) : '-'}
+                    </TableCell>
                     <TableCell className="text-emerald-400 font-semibold">
                       {stock.toplam_metrekare.toFixed(2)}
                     </TableCell>
-                    <TableCell className="text-slate-300">{stock.toplam_adet}</TableCell>
+                    <TableCell className="text-slate-300 font-semibold">{stock.toplam_adet}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>

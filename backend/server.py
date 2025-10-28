@@ -42,6 +42,7 @@ class Production(BaseModel):
     masura_tipi: str
     renk_kategori: str
     renk: str
+    urun_tipi: str = "Normal"  # Normal or Kesilmiş
     timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 class ProductionCreate(BaseModel):
@@ -62,11 +63,14 @@ class Shipment(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     tarih: str
     alici_firma: str
+    urun_tipi: str  # Normal or Kesilmiş
     kalinlik: float  # mm
     en: float  # cm
     metre: float
     metrekare: float
     adet: int
+    renk_kategori: str
+    renk: str
     irsaliye_no: str
     arac_plaka: str
     sofor: str
@@ -76,11 +80,14 @@ class Shipment(BaseModel):
 class ShipmentCreate(BaseModel):
     tarih: str
     alici_firma: str
+    urun_tipi: str
     kalinlik: float
     en: float
     metre: float
     metrekare: float
     adet: int
+    renk_kategori: str
+    renk: str
     irsaliye_no: str
     arac_plaka: str
     sofor: str
@@ -96,6 +103,8 @@ class CutProduct(BaseModel):
     ana_en: float  # cm
     ana_metre: float
     ana_metrekare: float
+    ana_renk_kategori: str
+    ana_renk: str
     # Kesilecek model
     kesim_kalinlik: float  # mm
     kesim_en: float  # cm
@@ -112,6 +121,8 @@ class CutProductCreate(BaseModel):
     ana_en: float
     ana_metre: float
     ana_metrekare: float
+    ana_renk_kategori: str
+    ana_renk: str
     kesim_kalinlik: float
     kesim_en: float
     kesim_boy: float
@@ -123,10 +134,13 @@ class CutProductCreate(BaseModel):
 class Stock(BaseModel):
     model_config = ConfigDict(extra="ignore")
     
-    model: str
+    urun_tipi: str  # Normal or Kesilmiş
     kalinlik: float
     en: float
-    toplam_metre: float
+    boy: Optional[float] = None  # Sadece kesilmiş ürünlerde
+    renk_kategori: str
+    renk: str
+    toplam_metre: Optional[float] = 0
     toplam_metrekare: float
     toplam_adet: int
 
@@ -149,6 +163,8 @@ async def get_productions():
     for prod in productions:
         if isinstance(prod['timestamp'], str):
             prod['timestamp'] = datetime.fromisoformat(prod['timestamp'])
+        if 'urun_tipi' not in prod:
+            prod['urun_tipi'] = 'Normal'
     
     return productions
 
@@ -171,6 +187,12 @@ async def get_shipments():
     for ship in shipments:
         if isinstance(ship['timestamp'], str):
             ship['timestamp'] = datetime.fromisoformat(ship['timestamp'])
+        # Handle old records
+        if 'urun_tipi' not in ship:
+            ship['urun_tipi'] = 'Normal'
+        if 'renk_kategori' not in ship:
+            ship['renk_kategori'] = 'Renksiz'
+            ship['renk'] = 'Doğal'
     
     return shipments
 
@@ -184,6 +206,26 @@ async def create_cut_product(input: CutProductCreate):
     doc['timestamp'] = doc['timestamp'].isoformat()
     
     await db.cut_products.insert_one(doc)
+    
+    # Also add to productions as a cut product
+    cut_production = Production(
+        tarih=cut_obj.tarih,
+        makine="Kesim",
+        kalinlik=cut_obj.kesim_kalinlik,
+        en=cut_obj.kesim_en,
+        metre=cut_obj.kesim_boy / 100,  # cm to m
+        metrekare=(cut_obj.kesim_en / 100) * (cut_obj.kesim_boy / 100) * cut_obj.kesim_adet,
+        adet=cut_obj.kesim_adet,
+        masura_tipi="Kesilmiş",
+        renk_kategori=cut_obj.kesim_renk_kategori,
+        renk=cut_obj.kesim_renk,
+        urun_tipi="Kesilmiş"
+    )
+    
+    prod_doc = cut_production.model_dump()
+    prod_doc['timestamp'] = prod_doc['timestamp'].isoformat()
+    await db.productions.insert_one(prod_doc)
+    
     return cut_obj
 
 @api_router.get("/cut-product", response_model=List[CutProduct])
@@ -193,6 +235,10 @@ async def get_cut_products():
     for cut in cut_products:
         if isinstance(cut['timestamp'], str):
             cut['timestamp'] = datetime.fromisoformat(cut['timestamp'])
+        # Handle old records
+        if 'ana_renk_kategori' not in cut:
+            cut['ana_renk_kategori'] = 'Renksiz'
+            cut['ana_renk'] = 'Doğal'
     
     return cut_products
 
@@ -211,35 +257,74 @@ async def get_stock():
     # Calculate stock by grouping
     stock_dict = {}
     
-    # Add productions
+    # Add productions (both normal and cut)
     for prod in productions:
-        key = f"{prod['kalinlik']}_{prod['en']}"
-        if key not in stock_dict:
-            stock_dict[key] = {
-                'model': f"Kalınlık {prod['kalinlik']}mm x En {prod['en']}cm",
-                'kalinlik': prod['kalinlik'],
-                'en': prod['en'],
-                'toplam_metre': 0,
-                'toplam_metrekare': 0,
-                'toplam_adet': 0
-            }
-        stock_dict[key]['toplam_metre'] += prod['metre']
-        stock_dict[key]['toplam_metrekare'] += prod['metrekare']
-        stock_dict[key]['toplam_adet'] += prod['adet']
+        urun_tipi = prod.get('urun_tipi', 'Normal')
+        renk_kategori = prod.get('renk_kategori', 'Renksiz')
+        renk = prod.get('renk', 'Doğal')
+        
+        if urun_tipi == 'Kesilmiş':
+            # Kesilmiş ürün: kalinlik_en_boy_renk_kategori_renk
+            boy = prod.get('metre', 0) * 100  # metre to cm
+            key = f"Kesilmiş_{prod['kalinlik']}_{prod['en']}_{boy}_{renk_kategori}_{renk}"
+            if key not in stock_dict:
+                stock_dict[key] = {
+                    'urun_tipi': 'Kesilmiş',
+                    'kalinlik': prod['kalinlik'],
+                    'en': prod['en'],
+                    'boy': boy,
+                    'renk_kategori': renk_kategori,
+                    'renk': renk,
+                    'toplam_metre': 0,
+                    'toplam_metrekare': 0,
+                    'toplam_adet': 0
+                }
+            stock_dict[key]['toplam_metrekare'] += prod.get('metrekare', 0)
+            stock_dict[key]['toplam_adet'] += prod['adet']
+        else:
+            # Normal ürün: kalinlik_en_renk_kategori_renk
+            key = f"Normal_{prod['kalinlik']}_{prod['en']}_{renk_kategori}_{renk}"
+            if key not in stock_dict:
+                stock_dict[key] = {
+                    'urun_tipi': 'Normal',
+                    'kalinlik': prod['kalinlik'],
+                    'en': prod['en'],
+                    'boy': None,
+                    'renk_kategori': renk_kategori,
+                    'renk': renk,
+                    'toplam_metre': 0,
+                    'toplam_metrekare': 0,
+                    'toplam_adet': 0
+                }
+            stock_dict[key]['toplam_metre'] += prod.get('metre', 0)
+            stock_dict[key]['toplam_metrekare'] += prod.get('metrekare', 0)
+            stock_dict[key]['toplam_adet'] += prod['adet']
     
     # Subtract shipments
     for ship in shipments:
-        key = f"{ship['kalinlik']}_{ship['en']}"
+        urun_tipi = ship.get('urun_tipi', 'Normal')
+        renk_kategori = ship.get('renk_kategori', 'Renksiz')
+        renk = ship.get('renk', 'Doğal')
+        
+        if urun_tipi == 'Kesilmiş':
+            boy = ship.get('metre', 0) * 100
+            key = f"Kesilmiş_{ship['kalinlik']}_{ship['en']}_{boy}_{renk_kategori}_{renk}"
+        else:
+            key = f"Normal_{ship['kalinlik']}_{ship['en']}_{renk_kategori}_{renk}"
+        
         if key in stock_dict:
-            stock_dict[key]['toplam_metre'] -= ship['metre']
-            stock_dict[key]['toplam_metrekare'] -= ship['metrekare']
+            stock_dict[key]['toplam_metrekare'] -= ship.get('metrekare', 0)
             stock_dict[key]['toplam_adet'] -= ship['adet']
+            if urun_tipi == 'Normal':
+                stock_dict[key]['toplam_metre'] -= ship.get('metre', 0)
     
     # Subtract cut products (ana malzeme usage)
     for cut in cut_products:
-        # Support both old and new cut product formats
         if 'ana_kalinlik' in cut and 'ana_en' in cut:
-            key = f"{cut['ana_kalinlik']}_{cut['ana_en']}"
+            ana_renk_kategori = cut.get('ana_renk_kategori', 'Renksiz')
+            ana_renk = cut.get('ana_renk', 'Doğal')
+            key = f"Normal_{cut['ana_kalinlik']}_{cut['ana_en']}_{ana_renk_kategori}_{ana_renk}"
+            
             if key in stock_dict:
                 # Deduct the used ana malzeme count
                 stock_dict[key]['toplam_adet'] -= cut.get('kullanilan_ana_adet', 0)
