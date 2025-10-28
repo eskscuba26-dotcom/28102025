@@ -335,7 +335,6 @@ const ProductionForm = ({ userRole }) => {
           <CardTitle className="text-white" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
             Üretim Kayıtları {!isAdmin && '(Sadece Görüntüleme)'}
           </CardTitle>
-          </CardTitle>
         </CardHeader>
         <CardContent>
           {productions.length === 0 ? (
