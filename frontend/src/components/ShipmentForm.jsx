@@ -431,7 +431,10 @@ const ShipmentForm = () => {
                         )}
                       </TableCell>
                       <TableCell className="text-slate-300">
-                        {ship.kalinlik}mm x {ship.en}cm x {ship.metre}m
+                        {ship.urun_tipi === 'Kesilmiş' 
+                          ? `${ship.kalinlik}mm x ${ship.en}cm x ${ship.metre}cm`
+                          : `${ship.kalinlik}mm x ${ship.en}cm x ${ship.metre}m`
+                        }
                       </TableCell>
                       <TableCell className="text-emerald-400 font-semibold">{ship.metrekare.toFixed(2)}</TableCell>
                       <TableCell className="text-slate-300">{ship.adet}</TableCell>
