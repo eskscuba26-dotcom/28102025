@@ -28,11 +28,12 @@ const Home = () => {
 
   const fetchStats = async () => {
     try {
-      const [stockRes, prodRes, shipRes, rawMatRes] = await Promise.all([
+      const [stockRes, prodRes, shipRes, rawMatRes, consumptionRes] = await Promise.all([
         api.get('/stock'),
         api.get('/production'),
         api.get('/shipment'),
-        api.get('/raw-materials')
+        api.get('/raw-materials'),
+        api.get('/daily-consumption')
       ]);
 
       const stocks = stockRes.data;
@@ -44,7 +45,7 @@ const Home = () => {
         .filter(s => s.urun_tipi === 'Kesilmiş')
         .reduce((sum, s) => sum + s.toplam_adet, 0);
 
-      // Calculate raw material stocks by material name
+      // Calculate raw material stocks - start with inputs
       const rawMaterials = {
         gaz: 0,
         petkim: 0,
@@ -57,6 +58,7 @@ const Home = () => {
         sari: 0
       };
 
+      // Add raw material inputs
       rawMatRes.data.forEach(mat => {
         const name = mat.malzeme_adi.toLowerCase();
         const miktar = mat.miktar || 0;
@@ -79,6 +81,27 @@ const Home = () => {
           rawMaterials.masura200 += miktar;
         } else if (name.includes('sarı') || name.includes('sari')) {
           rawMaterials.sari += miktar;
+        }
+      });
+
+      // Subtract consumption from daily consumption records
+      consumptionRes.data.forEach(cons => {
+        rawMaterials.petkim -= cons.toplam_petkim_tuketim || 0;
+        rawMaterials.estol -= cons.toplam_estol_tuketim || 0;
+        rawMaterials.talk -= cons.toplam_talk_tuketim || 0;
+      });
+
+      // Subtract masura used in production (1 adet per production)
+      prodRes.data.forEach(prod => {
+        const masuraTipi = prod.masura_tipi;
+        if (masuraTipi === '100') {
+          rawMaterials.masura100 -= 1;
+        } else if (masuraTipi === '120') {
+          rawMaterials.masura120 -= 1;
+        } else if (masuraTipi === '150') {
+          rawMaterials.masura150 -= 1;
+        } else if (masuraTipi === '200') {
+          rawMaterials.masura200 -= 1;
         }
       });
 
