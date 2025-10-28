@@ -149,6 +149,26 @@ async def login(user_login: UserLogin):
 async def get_me(current_user: dict = Depends(get_current_user)):
     return current_user
 
+@api_router.post("/auth/change-password")
+async def change_password(password_data: PasswordChange, current_user: dict = Depends(get_current_user)):
+    # Get user from database
+    user = await db.users.find_one({"username": current_user["username"]})
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    # Verify current password
+    if not verify_password(password_data.current_password, user["password_hash"]):
+        raise HTTPException(status_code=401, detail="Current password is incorrect")
+    
+    # Update password
+    new_password_hash = hash_password(password_data.new_password)
+    await db.users.update_one(
+        {"username": current_user["username"]},
+        {"$set": {"password_hash": new_password_hash}}
+    )
+    
+    return {"message": "Password changed successfully"}
+
 # User management (admin only)
 @api_router.post("/users", response_model=UserInfo)
 async def create_user(user_create: UserCreate, admin_user: dict = Depends(get_admin_user)):
