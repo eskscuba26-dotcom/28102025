@@ -130,6 +130,13 @@ function AppContent({ user, onLogout }) {
           <Route path="/cut-product" element={<CutProductForm userRole={user.role} />} />
           <Route path="/shipment" element={<ShipmentForm userRole={user.role} />} />
           <Route path="/stock" element={<StockView userRole={user.role} />} />
+          <Route path="/raw-materials" element={<RawMaterialForm userRole={user.role} />} />
+          <Route path="/currency" element={user.role === 'admin' ? <CurrencySettings /> : <Navigate to="/" />} />
+          <Route path="/users" element={user.role === 'admin' ? <UserManagement /> : <Navigate to="/" />} />
+        </Routes>
+      </main>
+          <Route path="/shipment" element={<ShipmentForm userRole={user.role} />} />
+          <Route path="/stock" element={<StockView userRole={user.role} />} />
           <Route path="/users" element={user.role === 'admin' ? <UserManagement /> : <Navigate to="/" />} />
         </Routes>
       </main>
