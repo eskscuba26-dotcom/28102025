@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from 'sonner';
+import { Eye, EyeOff } from 'lucide-react';
 import axios from 'axios';
 import logo from '@/assets/logo.png';
 
@@ -17,6 +18,7 @@ const Login = ({ onLogin }) => {
     password: ''
   });
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -27,7 +29,6 @@ const Login = ({ onLogin }) => {
       const response = await axios.post(`${API}/auth/login`, formData);
       const { access_token, role, username } = response.data;
       
-      // Store in localStorage
       localStorage.setItem('token', access_token);
       localStorage.setItem('role', role);
       localStorage.setItem('username', username);
@@ -76,15 +77,26 @@ const Login = ({ onLogin }) => {
 
             <div className="space-y-2">
               <Label htmlFor="password" className="text-slate-200">Şifre</Label>
-              <Input
-                id="password"
-                type="password"
-                value={formData.password}
-                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                className="bg-slate-800/50 border-slate-700 text-white"
-                placeholder="Şifrenizi girin"
-                required
-              />
+              <div className="relative">
+                <Input
+                  id="password"
+                  type={showPassword ? 'text' : 'password'}
+                  value={formData.password}
+                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                  className="bg-slate-800/50 border-slate-700 text-white pr-10"
+                  placeholder="Şifrenizi girin"
+                  required
+                />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="absolute right-0 top-0 h-full px-3 text-slate-400 hover:text-white"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </Button>
+              </div>
             </div>
 
             <Button 
