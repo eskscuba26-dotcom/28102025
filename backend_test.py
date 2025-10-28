@@ -291,6 +291,183 @@ def test_data_operations(token):
     
     return results
 
+def test_cut_product_stock_scenario(token):
+    """Test specific scenario: Cut Product Stock Management"""
+    results = TestResults()
+    
+    if not token:
+        results.add_result("Cut Product Stock Test", False, "No valid token available")
+        return results
+    
+    print(f"\n🔪 CUT PRODUCT STOCK TEST: Kesilmiş Ürün Stok Testi")
+    print("Scenario: Add cut product → Ship it → Verify stock decrease")
+    
+    headers = {
+        "Authorization": f"Bearer {token}",
+        "Content-Type": "application/json"
+    }
+    
+    # Step 1: Add Cut Product
+    try:
+        cut_product_data = {
+            "tarih": "2025-10-28",
+            "ana_kalinlik": 1.5,
+            "ana_en": 100,
+            "ana_metre": 50,
+            "ana_metrekare": 50,
+            "ana_renk_kategori": "Renksiz",
+            "ana_renk": "Doğal",
+            "kesim_kalinlik": 1.5,
+            "kesim_en": 100,
+            "kesim_boy": 200,
+            "kesim_renk_kategori": "Renksiz",
+            "kesim_renk": "Doğal",
+            "kesim_adet": 10,
+            "kullanilan_ana_adet": 1
+        }
+        
+        response = requests.post(f"{API_BASE}/cut-product", 
+                               json=cut_product_data, 
+                               headers=headers, 
+                               timeout=10)
+        
+        if response.status_code == 200:
+            data = response.json()
+            cut_product_id = data.get("id")
+            results.add_result("Step 1: Add Cut Product", True, 
+                             f"Cut product created with ID: {cut_product_id}")
+        else:
+            results.add_result("Step 1: Add Cut Product", False, 
+                             f"Status: {response.status_code}, Response: {response.text}")
+            return results
+            
+    except Exception as e:
+        results.add_result("Step 1: Add Cut Product", False, f"Error: {str(e)}")
+        return results
+    
+    # Step 2: Check Initial Stock
+    try:
+        response = requests.get(f"{API_BASE}/stock", headers=headers, timeout=10)
+        
+        if response.status_code == 200:
+            stock_data = response.json()
+            
+            # Find the cut product in stock
+            cut_stock = None
+            for item in stock_data:
+                if (item.get('urun_tipi') == 'Kesilmiş' and 
+                    item.get('kalinlik') == 1.5 and 
+                    item.get('en') == 100 and 
+                    item.get('boy') == 200 and
+                    item.get('renk_kategori') == 'Renksiz' and
+                    item.get('renk') == 'Doğal'):
+                    cut_stock = item
+                    break
+            
+            if cut_stock:
+                initial_stock = cut_stock.get('toplam_adet', 0)
+                results.add_result("Step 2: Check Initial Stock", True, 
+                                 f"Initial cut product stock: {initial_stock} pieces")
+                
+                if initial_stock == 10:
+                    results.add_result("Step 2: Verify Initial Stock Amount", True, 
+                                     "Stock shows expected 10 pieces")
+                else:
+                    results.add_result("Step 2: Verify Initial Stock Amount", False, 
+                                     f"Expected 10 pieces, found {initial_stock}")
+            else:
+                results.add_result("Step 2: Check Initial Stock", False, 
+                                 "Cut product not found in stock")
+                return results
+        else:
+            results.add_result("Step 2: Check Initial Stock", False, 
+                             f"Status: {response.status_code}, Response: {response.text}")
+            return results
+            
+    except Exception as e:
+        results.add_result("Step 2: Check Initial Stock", False, f"Error: {str(e)}")
+        return results
+    
+    # Step 3: Create Shipment (Ship 5 pieces)
+    try:
+        shipment_data = {
+            "tarih": "2025-10-28",
+            "alici_firma": "Test Firma",
+            "urun_tipi": "Kesilmiş",
+            "kalinlik": 1.5,
+            "en": 100,
+            "metre": 2.0,  # boy in meters (200cm = 2.0m)
+            "metrekare": 2.0,
+            "adet": 5,
+            "renk_kategori": "Renksiz",
+            "renk": "Doğal",
+            "irsaliye_no": "TEST001",
+            "arac_plaka": "34TEST34",
+            "sofor": "Test Şoför",
+            "cikis_saati": "10:00"
+        }
+        
+        response = requests.post(f"{API_BASE}/shipment", 
+                               json=shipment_data, 
+                               headers=headers, 
+                               timeout=10)
+        
+        if response.status_code == 200:
+            data = response.json()
+            shipment_id = data.get("id")
+            results.add_result("Step 3: Create Shipment", True, 
+                             f"Shipment created with ID: {shipment_id}")
+        else:
+            results.add_result("Step 3: Create Shipment", False, 
+                             f"Status: {response.status_code}, Response: {response.text}")
+            return results
+            
+    except Exception as e:
+        results.add_result("Step 3: Create Shipment", False, f"Error: {str(e)}")
+        return results
+    
+    # Step 4: Check Final Stock
+    try:
+        response = requests.get(f"{API_BASE}/stock", headers=headers, timeout=10)
+        
+        if response.status_code == 200:
+            stock_data = response.json()
+            
+            # Find the cut product in stock again
+            cut_stock = None
+            for item in stock_data:
+                if (item.get('urun_tipi') == 'Kesilmiş' and 
+                    item.get('kalinlik') == 1.5 and 
+                    item.get('en') == 100 and 
+                    item.get('boy') == 200 and
+                    item.get('renk_kategori') == 'Renksiz' and
+                    item.get('renk') == 'Doğal'):
+                    cut_stock = item
+                    break
+            
+            if cut_stock:
+                final_stock = cut_stock.get('toplam_adet', 0)
+                results.add_result("Step 4: Check Final Stock", True, 
+                                 f"Final cut product stock: {final_stock} pieces")
+                
+                if final_stock == 5:
+                    results.add_result("Step 4: Verify Stock Decrease", True, 
+                                     "Stock correctly decreased from 10 to 5 pieces")
+                else:
+                    results.add_result("Step 4: Verify Stock Decrease", False, 
+                                     f"Expected 5 pieces, found {final_stock}")
+            else:
+                results.add_result("Step 4: Check Final Stock", False, 
+                                 "Cut product not found in final stock")
+        else:
+            results.add_result("Step 4: Check Final Stock", False, 
+                             f"Status: {response.status_code}, Response: {response.text}")
+            
+    except Exception as e:
+        results.add_result("Step 4: Check Final Stock", False, f"Error: {str(e)}")
+    
+    return results
+
 def main():
     print("🚀 SAR Ambalaj Üretim Takip Sistemi - Backend Test Suite")
     print(f"Testing Backend URL: {BACKEND_URL}")
@@ -323,6 +500,12 @@ def main():
         all_results.results.extend(data_results.results)
         all_results.passed += data_results.passed
         all_results.failed += data_results.failed
+        
+        # 5. Cut Product Stock Test (Specific Scenario)
+        cut_stock_results = test_cut_product_stock_scenario(token)
+        all_results.results.extend(cut_stock_results.results)
+        all_results.passed += cut_stock_results.passed
+        all_results.failed += cut_stock_results.failed
     else:
         print("\n⚠️  Skipping authenticated tests - no valid token obtained")
     
