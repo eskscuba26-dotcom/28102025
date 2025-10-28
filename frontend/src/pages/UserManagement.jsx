@@ -77,9 +77,8 @@ const UserManagement = () => {
     }
 
     try {
-      const token = localStorage.getItem('token');
       // First verify current password by attempting login
-      await axios.post(`${API}/auth/login`, {
+      await api.post('/auth/login', {
         username: currentUsername,
         password: passwordChange.currentPassword
       });
