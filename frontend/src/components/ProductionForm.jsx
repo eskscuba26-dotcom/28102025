@@ -42,7 +42,7 @@ const ProductionForm = () => {
 
   const fetchProductions = async () => {
     try {
-      const response = await axios.get(`${API}/production`);
+      const response = await api.get('/production');
       setProductions(response.data.filter(p => p.urun_tipi === 'Normal'));
     } catch (error) {
       console.error(error);
