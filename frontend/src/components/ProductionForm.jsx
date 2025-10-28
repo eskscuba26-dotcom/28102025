@@ -327,12 +327,14 @@ const ProductionForm = ({ userRole }) => {
           </form>
         </CardContent>
       </Card>
+      )}
 
       {/* Production List */}
       <Card className="bg-slate-900/50 border-slate-800 backdrop-blur-sm">
         <CardHeader>
           <CardTitle className="text-white" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
-            Üretim Kayıtları
+            Üretim Kayıtları {!isAdmin && '(Sadece Görüntüleme)'}
+          </CardTitle>
           </CardTitle>
         </CardHeader>
         <CardContent>
