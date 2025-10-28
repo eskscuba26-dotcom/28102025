@@ -368,24 +368,25 @@ const ProductionForm = ({ userRole }) => {
                       <TableCell className="text-slate-300">{prod.adet}</TableCell>
                       <TableCell className="text-slate-300">{prod.renk}</TableCell>
                       <TableCell className="text-right">
-                        <div className="flex items-center justify-end gap-2">
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => handleEdit(prod)}
-                            className="h-8 w-8 text-blue-400 hover:text-blue-300 hover:bg-blue-950/30"
-                          >
-                            <Pencil className="h-4 w-4" />
-                          </Button>
-                          <AlertDialog>
-                            <AlertDialogTrigger asChild>
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className="h-8 w-8 text-red-400 hover:text-red-300 hover:bg-red-950/30"
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
+                        {isAdmin && (
+                          <div className="flex items-center justify-end gap-2">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => handleEdit(prod)}
+                              className="h-8 w-8 text-blue-400 hover:text-blue-300 hover:bg-blue-950/30"
+                            >
+                              <Pencil className="h-4 w-4" />
+                            </Button>
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-8 w-8 text-red-400 hover:text-red-300 hover:bg-red-950/30"
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
                             </AlertDialogTrigger>
                             <AlertDialogContent className="bg-slate-900 border-slate-800">
                               <AlertDialogHeader>
