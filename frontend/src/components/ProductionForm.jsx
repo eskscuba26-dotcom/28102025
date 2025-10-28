@@ -366,7 +366,9 @@ const ProductionForm = ({ userRole }) => {
                       <TableCell className="text-slate-300">{prod.metre} m</TableCell>
                       <TableCell className="text-emerald-400 font-semibold">{prod.metrekare.toFixed(2)}</TableCell>
                       <TableCell className="text-slate-300">{prod.adet}</TableCell>
+                      <TableCell className="text-blue-400">{prod.masura_tipi}</TableCell>
                       <TableCell className="text-slate-300">{prod.renk}</TableCell>
+                      {isAdmin && (
                       <TableCell className="text-right">
                         {isAdmin && (
                           <div className="flex items-center justify-end gap-2">
