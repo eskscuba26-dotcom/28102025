@@ -102,6 +102,51 @@
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
 
+user_problem_statement: "SAR Ambalaj Üretim Takip Sistemi - Şifre değiştirme özelliği eklendi"
+
+backend:
+  - task: "Password Change API"
+    implemented: true
+    working: true
+    file: "backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Şifre değiştirme endpoint'i eklendi (/api/auth/change-password). Mevcut şifreyi doğrulayıp yeni şifreyi güvenli şekilde hashleyerek kaydediyor."
+
+frontend:
+  - task: "Password Change UI"
+    implemented: true
+    working: true
+    file: "frontend/src/pages/UserManagement.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Şifre değiştirme formu güncellendi. Backend API'yi kullanarak şifre değiştirme işlemini yapıyor. Minimum 6 karakter kontrolü ve şifre eşleşme kontrolü eklendi."
+
+metadata:
+  created_by: "main_agent"
+  version: "1.1"
+  test_sequence: 2
+  run_ui: false
+
+test_plan:
+  current_focus:
+    - "Password Change Feature"
+  stuck_tasks: []
+  test_all: false
+  test_priority: "high_first"
+
+agent_communication:
+  - agent: "main"
+    message: "Kullanıcı şifresini değiştirdiğinde kabul ediyor ama tekrar giriş yaparken hatalı diyor sorununu çözdüm. Backend'e /api/auth/change-password endpoint'i ekledim ve frontend'i buna göre güncelledim. Artık kullanıcılar şifrelerini değiştirebilir ve yeni şifreleriyle giriş yapabilirler."
+
 user_problem_statement: "SAR Ambalaj Üretim Takip Sistemi için güvenlik ve fonksiyonellik testi - Security and functionality testing for SAR Packaging Production Tracking System"
 
 backend:
