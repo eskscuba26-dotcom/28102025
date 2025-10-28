@@ -474,14 +474,23 @@ async def create_cut_product(input: CutProductCreate):
 async def get_cut_products():
     cut_products = await db.cut_products.find({}, {"_id": 0}).to_list(1000)
     
+    # Filter only new format cut products
+    valid_cuts = []
     for cut in cut_products:
         if isinstance(cut['timestamp'], str):
             cut['timestamp'] = datetime.fromisoformat(cut['timestamp'])
-        if 'ana_renk_kategori' not in cut:
-            cut['ana_renk_kategori'] = 'Renksiz'
-            cut['ana_renk'] = 'Doğal'
+        
+        # Check if it has new format fields
+        if 'ana_kalinlik' in cut and 'kesim_kalinlik' in cut:
+            if 'ana_renk_kategori' not in cut:
+                cut['ana_renk_kategori'] = 'Renksiz'
+                cut['ana_renk'] = 'Doğal'
+            if 'kesim_renk_kategori' not in cut:
+                cut['kesim_renk_kategori'] = 'Renksiz'
+                cut['kesim_renk'] = 'Doğal'
+            valid_cuts.append(cut)
     
-    return cut_products
+    return valid_cuts
 
 @api_router.delete("/cut-product/{cut_id}")
 async def delete_cut_product(cut_id: str):
