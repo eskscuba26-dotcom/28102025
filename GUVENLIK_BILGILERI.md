@@ -10,9 +10,19 @@ Bu dosya sadece sizin bilginiz için oluşturulmuştur. **Kimseyle paylaşmayın
 
 ### Admin Hesabı (İlk Giriş):
 - **Kullanıcı Adı:** `admin`
-- **Şifre:** `SAR_2025_GuvenlI_SifrE!@#`
+- **Şifre:** `SAR2025!`
 
 **ÖNEMLİ:** İlk girişten sonra mutlaka şifrenizi değiştirin!
+
+### ✅ Şifre Nasıl Değiştirilir:
+1. Admin hesabı ile giriş yapın
+2. Sol menüden "Kullanıcı Yönetimi" sayfasına gidin
+3. Sağ üstteki "Şifremi Değiştir" butonuna tıklayın
+4. Mevcut şifrenizi girin
+5. Yeni şifrenizi girin (en az 6 karakter)
+6. Yeni şifrenizi tekrar girin
+7. "Değiştir" butonuna basın
+8. ✅ Şifreniz değişti! Artık yeni şifrenizle giriş yapabilirsiniz
 
 ---
 
