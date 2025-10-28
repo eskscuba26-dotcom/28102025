@@ -518,6 +518,7 @@ async def get_shipments(current_user: dict = Depends(get_viewer_or_admin)):
             ship['urun_tipi'] = 'Normal'
         if 'renk_kategori' not in ship:
             ship['renk_kategori'] = 'Renksiz'
+        if 'renk' not in ship:
             ship['renk'] = 'Doğal'
     
     return shipments
