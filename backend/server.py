@@ -449,25 +449,6 @@ async def create_cut_product(input: CutProductCreate):
     
     await db.cut_products.insert_one(doc)
     
-    # Also add to productions as a cut product
-    cut_production = Production(
-        tarih=cut_obj.tarih,
-        makine="Kesim",
-        kalinlik=cut_obj.kesim_kalinlik,
-        en=cut_obj.kesim_en,
-        metre=cut_obj.kesim_boy / 100,
-        metrekare=(cut_obj.kesim_en / 100) * (cut_obj.kesim_boy / 100) * cut_obj.kesim_adet,
-        adet=cut_obj.kesim_adet,
-        masura_tipi="Kesilmiş",
-        renk_kategori=cut_obj.kesim_renk_kategori,
-        renk=cut_obj.kesim_renk,
-        urun_tipi="Kesilmiş"
-    )
-    
-    prod_doc = cut_production.model_dump()
-    prod_doc['timestamp'] = prod_doc['timestamp'].isoformat()
-    await db.productions.insert_one(prod_doc)
-    
     return cut_obj
 
 @api_router.get("/cut-product", response_model=List[CutProduct])
