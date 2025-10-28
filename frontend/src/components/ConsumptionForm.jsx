@@ -96,8 +96,8 @@ const ConsumptionForm = ({ userRole }) => {
       petkim_kg: consumption.petkim_kg.toString(),
       fire_kg: consumption.fire_kg.toString()
     });
-    setEstolKg(consumption.estol_kg);
-    setTalkKg(consumption.talk_kg);
+    setEstolKg(consumption.toplam_estol_tuketim);
+    setTalkKg(consumption.toplam_talk_tuketim);
     setEditingId(consumption.id);
     setIsEditDialogOpen(true);
   };
