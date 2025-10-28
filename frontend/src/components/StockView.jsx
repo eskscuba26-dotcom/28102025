@@ -78,9 +78,9 @@ const StockView = () => {
                     <TableCell className="text-slate-300">{stock.en}</TableCell>
                     <TableCell className="text-slate-300">
                       {stock.urun_tipi === 'Normal' ? (
-                        <span>{stock.toplam_metre ? stock.toplam_metre.toFixed(0) + ' m' : '-'}</span>
+                        <span>{stock.toplam_metre ? stock.toplam_metre.toFixed(0) + 'm' : '-'}</span>
                       ) : (
-                        <span>{stock.boy ? parseFloat(stock.boy.toFixed(1)) + ' cm' : '-'}</span>
+                        <span>{stock.boy ? parseFloat(stock.boy.toFixed(1)) + 'cm' : '-'}</span>
                       )}
                     </TableCell>
                     <TableCell className="text-slate-300">
