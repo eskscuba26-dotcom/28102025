@@ -341,7 +341,7 @@ class Stock(BaseModel):
 
 # Production endpoints
 @api_router.post("/production", response_model=Production)
-async def create_production(input: ProductionCreate, current_user: dict = Depends(get_admin_user)):
+async def create_production(input: ProductionCreate):
     prod_dict = input.model_dump()
     prod_obj = Production(**prod_dict)
     
