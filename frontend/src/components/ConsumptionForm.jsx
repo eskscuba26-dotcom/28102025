@@ -299,9 +299,10 @@ const ConsumptionForm = ({ userRole }) => {
                       <TableCell className="text-slate-300">{cons.tarih}</TableCell>
                       <TableCell className="text-white font-medium">{cons.makine}</TableCell>
                       <TableCell className="text-slate-300">{cons.petkim_kg.toFixed(2)}</TableCell>
-                      <TableCell className="text-blue-400">{cons.estol_kg.toFixed(2)}</TableCell>
-                      <TableCell className="text-emerald-400">{cons.talk_kg.toFixed(2)}</TableCell>
                       <TableCell className="text-red-400">{cons.fire_kg.toFixed(2)}</TableCell>
+                      <TableCell className="text-white font-semibold">{(cons.toplam_petkim_tuketim || 0).toFixed(2)}</TableCell>
+                      <TableCell className="text-blue-400">{(cons.toplam_estol_tuketim || 0).toFixed(2)}</TableCell>
+                      <TableCell className="text-emerald-400">{(cons.toplam_talk_tuketim || 0).toFixed(2)}</TableCell>
                       {isAdmin && (
                         <TableCell className="text-right">
                           <div className="flex items-center justify-end gap-2">
