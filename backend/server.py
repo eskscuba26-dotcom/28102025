@@ -493,7 +493,7 @@ async def delete_cut_product(cut_id: str):
 
 # Stock endpoint
 @api_router.get("/stock", response_model=List[Stock])
-async def get_stock(current_user: dict = Depends(get_current_user)):
+async def get_stock():
     productions = await db.productions.find({}, {"_id": 0}).to_list(10000)
     shipments = await db.shipments.find({}, {"_id": 0}).to_list(10000)
     cut_products = await db.cut_products.find({}, {"_id": 0}).to_list(10000)
