@@ -633,6 +633,8 @@ async def get_stock(current_user: dict = Depends(get_viewer_or_admin)):
             renk = cut.get('kesim_renk', 'Doğal')
             key = f"Kesilmiş_{cut['kesim_kalinlik']}_{cut['kesim_en']}_{boy_cm}_{renk_kategori}_{renk}"
             
+            logging.info(f"[KESIM] Adding key: {key}, adet: {cut['kesim_adet']}")
+            
             if key not in stock_dict:
                 stock_dict[key] = {
                     'urun_tipi': 'Kesilmiş',
