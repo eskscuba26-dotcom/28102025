@@ -11,7 +11,7 @@ const StockView = () => {
 
   const fetchStocks = async () => {
     try {
-      const response = await axios.get(`${API}/stock`);
+      const response = await api.get('/stock');
       setStocks(response.data);
       setLoading(false);
     } catch (error) {
