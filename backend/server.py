@@ -889,11 +889,14 @@ async def update_daily_consumption(consumption_id: str, update: DailyConsumption
     update_data = {k: v for k, v in update.model_dump().items() if v is not None}
     
     if update_data:
-        # Recalculate estol and talk if petkim changed
+        # Recalculate totals if petkim or fire changed
         petkim_kg = update_data.get('petkim_kg', consumption['petkim_kg'])
+        fire_kg = update_data.get('fire_kg', consumption['fire_kg'])
         
-        update_data['estol_kg'] = petkim_kg * 0.03
-        update_data['talk_kg'] = petkim_kg * 0.015
+        toplam_petkim = petkim_kg + fire_kg
+        update_data['toplam_petkim_tuketim'] = toplam_petkim
+        update_data['toplam_estol_tuketim'] = toplam_petkim * 0.03
+        update_data['toplam_talk_tuketim'] = toplam_petkim * 0.015
         
         await db.daily_consumptions.update_one({"id": consumption_id}, {"$set": update_data})
     
