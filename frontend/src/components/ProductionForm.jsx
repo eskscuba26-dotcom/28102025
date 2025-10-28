@@ -407,6 +407,7 @@ const ProductionForm = ({ userRole }) => {
                             </AlertDialogContent>
                           </AlertDialog>
                         </div>
+                        )}
                       </TableCell>
                     </TableRow>
                   ))}
