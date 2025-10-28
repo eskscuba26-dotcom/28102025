@@ -678,6 +678,146 @@ async def get_stock(current_user: dict = Depends(get_viewer_or_admin)):
     return list(stock_dict.values())
 
 
+# Currency Rate endpoints
+@api_router.get("/currency-rates")
+async def get_currency_rates(current_user: dict = Depends(get_viewer_or_admin)):
+    rates = await db.currency_rates.find({}, {"_id": 0}).sort("updated_at", -1).limit(1).to_list(1)
+    
+    if not rates:
+        # Return default rates if none exist
+        return {
+            "usd_rate": 1.0,
+            "eur_rate": 1.0,
+            "updated_at": datetime.now(timezone.utc).isoformat(),
+            "updated_by": "system"
+        }
+    
+    rate = rates[0]
+    if isinstance(rate['updated_at'], str):
+        rate['updated_at'] = datetime.fromisoformat(rate['updated_at'])
+    
+    return rate
+
+@api_router.post("/currency-rates")
+async def update_currency_rates(rates: CurrencyRateUpdate, admin_user: dict = Depends(get_admin_user)):
+    rate_obj = CurrencyRate(
+        usd_rate=rates.usd_rate,
+        eur_rate=rates.eur_rate,
+        updated_by=admin_user["username"]
+    )
+    
+    doc = rate_obj.model_dump()
+    doc['updated_at'] = doc['updated_at'].isoformat()
+    
+    await db.currency_rates.insert_one(doc)
+    return rate_obj
+
+
+# Raw Material endpoints
+@api_router.post("/raw-materials")
+async def create_raw_material(input: RawMaterialCreate, admin_user: dict = Depends(get_admin_user)):
+    # Get current currency rates
+    rates = await db.currency_rates.find({}, {"_id": 0}).sort("updated_at", -1).limit(1).to_list(1)
+    
+    usd_rate = 1.0
+    eur_rate = 1.0
+    if rates:
+        usd_rate = rates[0].get('usd_rate', 1.0)
+        eur_rate = rates[0].get('eur_rate', 1.0)
+    
+    # Calculate totals
+    toplam_tutar = input.miktar * input.birim_fiyat
+    
+    # Calculate TL amount based on currency
+    if input.para_birimi == "USD":
+        kur = usd_rate
+        tl_tutar = toplam_tutar * usd_rate
+    elif input.para_birimi == "EUR":
+        kur = eur_rate
+        tl_tutar = toplam_tutar * eur_rate
+    else:  # TL
+        kur = 1.0
+        tl_tutar = toplam_tutar
+    
+    raw_dict = input.model_dump()
+    raw_obj = RawMaterial(
+        **raw_dict,
+        toplam_tutar=toplam_tutar,
+        kur=kur,
+        tl_tutar=tl_tutar
+    )
+    
+    doc = raw_obj.model_dump()
+    doc['timestamp'] = doc['timestamp'].isoformat()
+    
+    await db.raw_materials.insert_one(doc)
+    return raw_obj
+
+@api_router.get("/raw-materials")
+async def get_raw_materials(current_user: dict = Depends(get_viewer_or_admin)):
+    materials = await db.raw_materials.find({}, {"_id": 0}).to_list(1000)
+    
+    for mat in materials:
+        if isinstance(mat['timestamp'], str):
+            mat['timestamp'] = datetime.fromisoformat(mat['timestamp'])
+    
+    return materials
+
+@api_router.put("/raw-materials/{material_id}")
+async def update_raw_material(material_id: str, update: RawMaterialUpdate, admin_user: dict = Depends(get_admin_user)):
+    material = await db.raw_materials.find_one({"id": material_id})
+    if not material:
+        raise HTTPException(status_code=404, detail="Raw material not found")
+    
+    # Get current currency rates
+    rates = await db.currency_rates.find({}, {"_id": 0}).sort("updated_at", -1).limit(1).to_list(1)
+    usd_rate = 1.0
+    eur_rate = 1.0
+    if rates:
+        usd_rate = rates[0].get('usd_rate', 1.0)
+        eur_rate = rates[0].get('eur_rate', 1.0)
+    
+    # Update fields
+    update_data = {k: v for k, v in update.model_dump().items() if v is not None}
+    
+    if update_data:
+        # Recalculate if relevant fields changed
+        miktar = update_data.get('miktar', material['miktar'])
+        birim_fiyat = update_data.get('birim_fiyat', material['birim_fiyat'])
+        para_birimi = update_data.get('para_birimi', material['para_birimi'])
+        
+        toplam_tutar = miktar * birim_fiyat
+        
+        if para_birimi == "USD":
+            kur = usd_rate
+            tl_tutar = toplam_tutar * usd_rate
+        elif para_birimi == "EUR":
+            kur = eur_rate
+            tl_tutar = toplam_tutar * eur_rate
+        else:
+            kur = 1.0
+            tl_tutar = toplam_tutar
+        
+        update_data['toplam_tutar'] = toplam_tutar
+        update_data['kur'] = kur
+        update_data['tl_tutar'] = tl_tutar
+        
+        await db.raw_materials.update_one({"id": material_id}, {"$set": update_data})
+    
+    updated_material = await db.raw_materials.find_one({"id": material_id}, {"_id": 0})
+    if isinstance(updated_material['timestamp'], str):
+        updated_material['timestamp'] = datetime.fromisoformat(updated_material['timestamp'])
+    
+    return RawMaterial(**updated_material)
+
+@api_router.delete("/raw-materials/{material_id}")
+async def delete_raw_material(material_id: str, admin_user: dict = Depends(get_admin_user)):
+    result = await db.raw_materials.delete_one({"id": material_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Raw material not found")
+    return {"message": "Raw material deleted"}
+
+
 # Include the router
 app.include_router(api_router)
 
