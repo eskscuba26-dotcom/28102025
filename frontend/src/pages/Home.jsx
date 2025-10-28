@@ -159,6 +159,113 @@ const Home = () => {
         </Card>
       </div>
 
+      {/* Hammadde Stokları */}
+      <div>
+        <h2 className="text-2xl font-bold text-white mb-4" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
+          Hammadde Stokları
+        </h2>
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+          {/* Gaz */}
+          <Card className="bg-gradient-to-br from-purple-950/50 to-purple-900/30 border-purple-800/50 backdrop-blur-sm">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-purple-200">Gaz</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-white">{stats.rawMaterials.gaz.toFixed(0)}</div>
+              <p className="text-xs text-purple-300">kg</p>
+            </CardContent>
+          </Card>
+
+          {/* Petkim */}
+          <Card className="bg-gradient-to-br from-blue-950/50 to-blue-900/30 border-blue-800/50 backdrop-blur-sm">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-blue-200">Petkim</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-white">{stats.rawMaterials.petkim.toFixed(0)}</div>
+              <p className="text-xs text-blue-300">kg</p>
+            </CardContent>
+          </Card>
+
+          {/* Estol */}
+          <Card className="bg-gradient-to-br from-cyan-950/50 to-cyan-900/30 border-cyan-800/50 backdrop-blur-sm">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-cyan-200">Estol</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-white">{stats.rawMaterials.estol.toFixed(0)}</div>
+              <p className="text-xs text-cyan-300">kg</p>
+            </CardContent>
+          </Card>
+
+          {/* Talk */}
+          <Card className="bg-gradient-to-br from-teal-950/50 to-teal-900/30 border-teal-800/50 backdrop-blur-sm">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-teal-200">Talk</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-white">{stats.rawMaterials.talk.toFixed(0)}</div>
+              <p className="text-xs text-teal-300">kg</p>
+            </CardContent>
+          </Card>
+
+          {/* Masura 100 */}
+          <Card className="bg-gradient-to-br from-green-950/50 to-green-900/30 border-green-800/50 backdrop-blur-sm">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-green-200">Masura 100</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-white">{stats.rawMaterials.masura100.toFixed(0)}</div>
+              <p className="text-xs text-green-300">adet</p>
+            </CardContent>
+          </Card>
+
+          {/* Masura 120 */}
+          <Card className="bg-gradient-to-br from-lime-950/50 to-lime-900/30 border-lime-800/50 backdrop-blur-sm">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-lime-200">Masura 120</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-white">{stats.rawMaterials.masura120.toFixed(0)}</div>
+              <p className="text-xs text-lime-300">adet</p>
+            </CardContent>
+          </Card>
+
+          {/* Masura 150 */}
+          <Card className="bg-gradient-to-br from-yellow-950/50 to-yellow-900/30 border-yellow-800/50 backdrop-blur-sm">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-yellow-200">Masura 150</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-white">{stats.rawMaterials.masura150.toFixed(0)}</div>
+              <p className="text-xs text-yellow-300">adet</p>
+            </CardContent>
+          </Card>
+
+          {/* Masura 200 */}
+          <Card className="bg-gradient-to-br from-orange-950/50 to-orange-900/30 border-orange-800/50 backdrop-blur-sm">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-orange-200">Masura 200</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-white">{stats.rawMaterials.masura200.toFixed(0)}</div>
+              <p className="text-xs text-orange-300">adet</p>
+            </CardContent>
+          </Card>
+
+          {/* Sarı */}
+          <Card className="bg-gradient-to-br from-amber-950/50 to-amber-900/30 border-amber-800/50 backdrop-blur-sm">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-amber-200">Sarı</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-white">{stats.rawMaterials.sari.toFixed(0)}</div>
+              <p className="text-xs text-amber-300">kg</p>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+
       {/* Hızlı Bilgiler */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card className="bg-slate-900/50 border-slate-800 backdrop-blur-sm">
