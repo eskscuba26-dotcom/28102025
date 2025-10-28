@@ -39,6 +39,8 @@ const CutProductForm = () => {
   const [anaMetrekare, setAnaMetrekare] = useState(0);
   const [kullanilanAnaAdet, setKullanilanAnaAdet] = useState(0);
   const [cutProducts, setCutProducts] = useState([]);
+  const [editingId, setEditingId] = useState(null);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
 
   useEffect(() => {
     fetchCutProducts();
