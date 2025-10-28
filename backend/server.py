@@ -440,7 +440,7 @@ async def delete_shipment(ship_id: str):
 
 # Cut Product endpoints
 @api_router.post("/cut-product", response_model=CutProduct)
-async def create_cut_product(input: CutProductCreate, current_user: dict = Depends(get_admin_user)):
+async def create_cut_product(input: CutProductCreate):
     cut_dict = input.model_dump()
     cut_obj = CutProduct(**cut_dict)
     
